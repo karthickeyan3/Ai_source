@@ -9,7 +9,7 @@ interface InputFormProps {
 export const InputForm = ({ onAnalyze }: InputFormProps) => {
     const [activeTab, setActiveTab] = useState<'body' | 'performance'>('body');
     const [formData, setFormData] = useState<FormData>({
-        name: 'name',
+        name: '',
         age: 12,
         gender: 'Male',
         sport: 'Basketball',

@@ -1,4 +1,4 @@
-import { Upload, Download, FileText } from 'lucide-react';
+import { Download, FileText } from 'lucide-react';
 import Papa from 'papaparse';
 import styles from '../App.module.css';
 import { runAssessment } from '../utils/percentileEngine';
@@ -102,7 +102,6 @@ export const BulkUpload = ({ onBulkResults }: BulkUploadProps) => {
                         onChange={handleFileUpload}
                         style={{ display: 'none' }}
                     />
-                    <Upload className={styles.uploadIcon} />
                     <div className={styles.uploadTitle}>DRAG & DROP CSV FILE</div>
                     <div className={styles.uploadSub}>or click to browse from your computer</div>
                 </label>
