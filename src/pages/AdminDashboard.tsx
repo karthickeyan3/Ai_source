@@ -15,9 +15,9 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
     const [showAddForm, setShowAddForm] = useState(false);
 
     const handleSave = () => {
-        // Validate all totals
+        // Validate all totals (handle empty strings as 0 for calculation)
         const invalidSports = Object.values(configs).filter(config => {
-            const total = Object.values(config.weights).reduce((a, b) => a + b, 0);
+            const total = Object.values(config.weights).reduce((a, b) => Number(a) + (Number(b) || 0), 0);
             return total !== 100;
         });
 
@@ -26,7 +26,17 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
             return;
         }
 
-        saveSportWeights(configs);
+        // Clean up empty values to 0 before saving
+        const cleaned: Record<string, SportConfig> = {};
+        Object.entries(configs).forEach(([sportName, config]) => {
+            const weights = { ...config.weights };
+            (Object.keys(weights) as (keyof SportWeights)[]).forEach(k => {
+                if ((weights[k] as any) === '') weights[k] = 0;
+            });
+            cleaned[sportName] = { ...config, weights };
+        });
+
+        saveSportWeights(cleaned);
         alert('All sport weights saved successfully!');
     };
 
@@ -46,14 +56,15 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
     };
 
     const updateWeight = (sportName: string, attr: keyof SportWeights, value: string) => {
-        const num = parseInt(value) || 0;
+        // Allow empty string in state so user can delete the value
+        const val = value === '' ? '' : (parseInt(value) || 0);
         setConfigs(prev => ({
             ...prev,
             [sportName]: {
                 ...prev[sportName],
                 weights: {
                     ...prev[sportName].weights,
-                    [attr]: num
+                    [attr]: val as any
                 }
             }
         }));
@@ -163,7 +174,7 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                     </thead>
                     <tbody>
                         {filteredSports.map(config => {
-                            const total = Object.values(config.weights).reduce((a, b) => a + b, 0);
+                            const total = Object.values(config.weights).reduce((a, b) => Number(a) + (Number(b) || 0), 0);
                             const isError = total !== 100;
 
                             return (
