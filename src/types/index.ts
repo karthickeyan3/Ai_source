@@ -1,16 +1,33 @@
-export type Sport = 'Basketball' | 'Football' | 'Cricket' | 'Athletics' | 'Swimming' | 'Gymnastics';
+export type Sport =
+    | 'Soccer'
+    | 'Basketball'
+    | 'Cricket'
+    | 'Tennis'
+    | 'Swimming - Sprint (50m/100m)'
+    | 'Swimming - Distance (400m/1500m)'
+    | 'Track & Field - Sprint (100m/200m)'
+    | 'Track & Field - Middle Distance (800m/1500m)'
+    | 'Track & Field - Long Distance (5K/10K)'
+    | 'Track & Field - Jumps (High/Long/Triple)'
+    | 'Track & Field - Throws (Shot/Discus/Javelin)'
+    | 'Gymnastics'
+    | 'Volleyball'
+    | 'Cycling'
+    | 'Rowing'
+    | 'Swimming'
+    | 'Track & Field';
 
 export type Gender = 'Male' | 'Female';
 
-export type AgeGroup = 'under13' | '13to15' | '16to18' | '18plus';
+export type AgeGroup = '10' | '11' | '12' | '13' | '14' | '15' | '16';
 
-export type Rating = 'EXCELLENT' | 'GOOD' | 'AVERAGE' | 'NEEDS WORK';
+export type Rating = 'Below Average' | 'Average' | 'Above Average' | 'Excellent' | 'Elite Potential';
 
 export interface FormData {
     name: string;
-    age: number;
+    age: number; // 10-16
     gender: Gender;
-    sport: Sport;
+    sport?: Sport;
     // Body metrics
     height: number;
     weight: number;
@@ -32,22 +49,52 @@ export interface FormData {
 export interface MetricResult {
     metric: string;
     value: number;
+    eliteValue: number;
     unit: string;
     percentile: number;
+    zScore: number;
     rating: Rating;
     isInverse: boolean;
 }
 
+export interface BodyCompAnalysis {
+    bmi: number;
+    proportionality: string;
+    growthStatus: string;
+    strengthToWeight: number;
+    powerToWeight: number;
+}
+
+export interface TalentIdentification {
+    peakAge: number;
+    potential: string;
+    cluster: 'Speed-dominant' | 'Power-dominant' | 'Endurance-dominant' | 'Agility-dominant' | 'Balanced athlete';
+    sportSwitchRecommendation?: string;
+}
+
+export interface RecommendedSport {
+    sport: string;
+    matchScore: number;
+    keyTraits: string;
+    talentIndicator?: string;
+}
+
 export interface AssessmentResult {
     athleteName: string;
-    sport: Sport;
+    sport: string;
     age: number;
     gender: Gender;
     metrics: MetricResult[];
+    attributes: Record<string, number>; // speed, agility, power, endurance, strength, flexibility, jumping
     overallScore: number;
     overallRating: Rating;
     strengths: MetricResult[];
     weaknesses: MetricResult[];
+    bodyComp: BodyCompAnalysis;
+    sportSuitability: number;
+    talentId: TalentIdentification;
+    recommendedSports: RecommendedSport[];
+    trainingRecommendations: string[];
 }
 
 export interface NormativeBreakpoints {
