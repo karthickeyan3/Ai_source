@@ -32,7 +32,6 @@ const perfFields = [
 
 const allNumericFields = [...bodyFields, ...perfFields];
 
-// ── Default (empty) form state ─────────────────────────────────────────────
 const EMPTY: Record<string, string | number> = {
     name: '', age: '', gender: 'Male',
     height: '', weight: '', shoulderGirth: '', hipCircumference: '',
@@ -41,50 +40,41 @@ const EMPTY: Record<string, string | number> = {
     tTest: '', reactionTime: '', responseTime: '', sprint40m: '',
 };
 
-// ── Validate a single numeric field ───────────────────────────────────────
-const validateField = (name: string, value: string | number): string => {
-    if (value === '' || value === undefined) return ''; // empty = not yet entered (ok)
-    const num = typeof value === 'number' ? value : parseFloat(value as string);
-    if (isNaN(num)) return 'Must be a number';
-    const limit = METRIC_LIMITS[name];
-    if (!limit) return '';
-    if (num < limit.min) return `Too low — min is ${limit.min} ${getUnit(name)}`;
-    if (num > limit.max) return `Too high — max is ${limit.max} ${getUnit(name)}`;
-    return '';
-};
-
 const UNITS: Record<string, string> = {
     height: 'cm', weight: 'kg', shoulderGirth: 'cm', hipCircumference: 'cm',
     waistCircumference: 'cm', skinfold: 'mm', hipToToe: 'cm',
     verticalJump: 'cm', sitAndReach: 'cm', plankTest: 's',
     tTest: 's', reactionTime: 's', responseTime: 's', sprint40m: 's',
 };
+
 const getUnit = (key: string) => UNITS[key] ?? '';
 
-// ── Component ──────────────────────────────────────────────────────────────
+const validateField = (name: string, value: string | number): string => {
+    if (value === '' || value === undefined) return 'Required';
+    const num = typeof value === 'number' ? value : parseFloat(value as string);
+    if (isNaN(num)) return 'Must be a number';
+    const limit = METRIC_LIMITS[name];
+    if (!limit) return '';
+    if (num < limit.min) return `Min: ${limit.min} ${getUnit(name)}`;
+    if (num > limit.max) return `Max: ${limit.max} ${getUnit(name)}`;
+    return '';
+};
+
 export const InputForm = ({ onAnalyze, isFullPage = false }: InputFormProps) => {
-    const [activeTab, setActiveTab] = useState<'body' | 'performance'>('body');
     const [formData, setFormData] = useState<Record<string, string | number>>(EMPTY);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [touched, setTouched] = useState<Record<string, boolean>>({});
     const [submitAttempted, setSubmitAttempted] = useState(false);
 
-    // ── Build real payload: use placeholder default if field is empty ──────
     const buildPayload = (): FormData => {
-        const payload: Record<string, string | number> = { ...formData };
-        allNumericFields.forEach(f => {
-            if (payload[f.name] === '') payload[f.name] = parseFloat(f.placeholder);
-        });
-        return payload as unknown as FormData;
+        return formData as unknown as FormData;
     };
 
-    // ── Run full validation over all fields and return error map ──────────
     const validateAll = (): Record<string, string> => {
         const errs: Record<string, string> = {};
-
-        if (!formData.name?.toString().trim()) errs['name'] = 'Full Name is required';
-        if (!formData.age) errs['age'] = 'Age is required';
-        else if (Number(formData.age) < 10 || Number(formData.age) > 16) errs['age'] = 'Age must be between 10-16';
+        if (!formData.name?.toString().trim()) errs['name'] = 'Required';
+        if (!formData.age) errs['age'] = 'Required';
+        else if (Number(formData.age) < 10 || Number(formData.age) > 16) errs['age'] = '10-16 only';
 
         allNumericFields.forEach(f => {
             const err = validateField(f.name, formData[f.name]);
@@ -93,89 +83,136 @@ export const InputForm = ({ onAnalyze, isFullPage = false }: InputFormProps) => 
         return errs;
     };
 
-    // ── Change handler ────────────────────────────────────────────────────
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         const isText = name === 'name' || name === 'gender';
-
         const stored = isText ? value : (value === '' ? '' : parseFloat(value));
         setFormData(prev => ({ ...prev, [name]: stored }));
 
-        // Live-validate once the field has been touched
         if (touched[name] || submitAttempted) {
             let errorMsg = '';
-            if (name === 'name') errorMsg = !value.trim() ? 'Full Name is required' : '';
-            else if (name === 'age') errorMsg = !value ? 'Age is required' : (Number(value) < 10 || Number(value) > 16 ? 'Age must be between 10-16' : '');
+            if (name === 'name') errorMsg = !value.trim() ? 'Required' : '';
+            else if (name === 'age') errorMsg = !value ? 'Required' : (Number(value) < 10 || Number(value) > 16 ? '10-16 only' : '');
             else errorMsg = validateField(name, stored);
-
             setErrors(prev => ({ ...prev, [name]: errorMsg }));
         }
     };
 
-    // ── Blur handler: mark field as touched ───────────────────────────────
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         const isText = name === 'name' || name === 'gender';
         const stored = isText ? value : (value === '' ? '' : parseFloat(value));
-
         setTouched(prev => ({ ...prev, [name]: true }));
 
         let errorMsg = '';
-        if (name === 'name') errorMsg = !value.trim() ? 'Full Name is required' : '';
-        else if (name === 'age') errorMsg = !value ? 'Age is required' : (Number(value) < 10 || Number(value) > 16 ? 'Age must be between 10-16' : '');
+        if (name === 'name') errorMsg = !value.trim() ? 'Required' : '';
+        else if (name === 'age') errorMsg = !value ? 'Required' : (Number(value) < 10 || Number(value) > 16 ? '10-16 only' : '');
         else errorMsg = validateField(name, stored);
-
         setErrors(prev => ({ ...prev, [name]: errorMsg }));
     };
 
-    // ── Submit ────────────────────────────────────────────────────────────
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setSubmitAttempted(true);
-
         const allErrors = validateAll();
         setErrors(allErrors);
-
-        // Mark all fields as touched so errors show
         const allTouched: Record<string, boolean> = {};
         allNumericFields.forEach(f => { allTouched[f.name] = true; });
+        allTouched['name'] = true;
+        allTouched['age'] = true;
         setTouched(allTouched);
 
-        if (Object.values(allErrors).some(err => err !== '')) {
-            // Scroll to the first error tab if needed
-            const bodyErr = bodyFields.some(f => allErrors[f.name]);
-            const perfErr = perfFields.some(f => allErrors[f.name]);
-            if (bodyErr) setActiveTab('body');
-            else if (perfErr) setActiveTab('performance');
-            return; // BLOCK submission
-        }
-
+        if (Object.values(allErrors).some(err => err !== '')) return;
         onAnalyze(buildPayload());
     };
 
-    // ── Count errors per tab for badge ───────────────────────────────────
-    const bodyErrCount = bodyFields.filter(f => errors[f.name]).length;
-    const perfErrCount = perfFields.filter(f => errors[f.name]).length;
-    const hasAnyError = bodyErrCount + perfErrCount > 0;
+    const renderField = (field: typeof bodyFields[0]) => {
+        const limit = METRIC_LIMITS[field.name];
+        const error = errors[field.name];
+        const isTouched = touched[field.name] || submitAttempted;
+        const showError = isTouched && !!error;
 
-    // ── Render ────────────────────────────────────────────────────────────
+        return (
+            <div key={field.name} style={{ 
+                marginBottom: '1.25rem',
+                position: 'relative'
+            }}>
+                <label className={styles.label} style={{ 
+                    fontSize: '0.75rem', 
+                    marginBottom: '6px', 
+                    opacity: 0.9,
+                    fontWeight: 700,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6
+                }}>
+                    {field.icon} {field.label}
+                </label>
+                <div style={{ position: 'relative' }}>
+                    <input
+                        className={styles.input}
+                        style={{
+                            padding: '8px 12px',
+                            fontSize: '0.9rem',
+                            height: '40px',
+                            width: '100%',
+                            ...(showError ? {
+                                borderColor: '#ef4444',
+                                outline: 'none',
+                                boxShadow: '0 0 0 2px rgba(239,68,68,0.2)',
+                            } : {})
+                        }}
+                        type="number"
+                        step={limit?.step ?? 0.1}
+                        name={field.name}
+                        value={formData[field.name] as string | number}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        placeholder={field.placeholder}
+                    />
+                    {showError && (
+                        <div style={{ position: 'absolute', bottom: -16, left: 0, fontSize: '0.65rem', color: '#ef4444', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <AlertCircle size={10} /> {error}
+                        </div>
+                    )}
+                    {limit && !showError && (
+                        <div style={{ fontSize: '0.65rem', color: '#9ca3af', marginTop: 4, paddingLeft: 2 }}>
+                            {limit.min}–{limit.max} {field.unit}
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    };
+
+    const hasAnyError = Object.values(errors).some(e => e !== '');
+
     return (
         <div className={isFullPage ? '' : styles.card}>
             {!isFullPage && <h3 className={styles.title}>ATHLETE ASSESSMENT FORM</h3>}
             <form onSubmit={handleSubmit} noValidate>
-
                 {/* ── Identity section ── */}
-                <div className={isFullPage ? styles.identityGrid : ''} style={!isFullPage ? { display: 'grid', gridTemplateColumns: '1fr', gap: '20px', marginBottom: '24px' } : { marginBottom: '24px' }}>
+                <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: isFullPage ? '2fr 1fr 1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', 
+                    gap: '20px', 
+                    marginBottom: '32px',
+                    padding: '24px',
+                    background: '#f8fafc',
+                    borderRadius: '16px',
+                    border: '1px solid #e2e8f0'
+                }}>
                     <div className={styles.formGroup}>
-                        <label className={styles.label}><User size={14} style={{ marginRight: 6 }} /> Full Name</label>
+                        <label className={styles.label} style={{ fontSize: '0.75rem', marginBottom: '6px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <User size={14} /> Full Name
+                        </label>
                         <div style={{ position: 'relative' }}>
                             <input
                                 className={`${styles.input} ${styles.nameInput}`}
-                                style={(submitAttempted || touched['name']) && errors['name'] ? {
-                                    borderColor: '#ef4444',
-                                    outline: 'none',
-                                    boxShadow: '0 0 0 2px rgba(239,68,68,0.25)',
-                                } : {}}
+                                style={{ 
+                                    padding: '8px 12px', fontSize: '0.9rem', height: '40px',
+                                    ...((touched['name'] || submitAttempted) && errors['name'] ? { borderColor: '#ef4444' } : {})
+                                }}
                                 name="name"
                                 value={formData.name as string}
                                 onChange={handleChange}
@@ -183,28 +220,26 @@ export const InputForm = ({ onAnalyze, isFullPage = false }: InputFormProps) => 
                                 placeholder="e.g. John Smith"
                                 maxLength={50}
                             />
-                            {(submitAttempted || touched['name']) && errors['name'] && (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 5, fontSize: '0.72rem', color: '#ef4444', fontWeight: 700, animation: 'fadeIn 0.15s ease' }}>
-                                    <AlertCircle size={12} /> {errors['name']}
+                            {(touched['name'] || submitAttempted) && errors['name'] && (
+                                <div style={{ position: 'absolute', bottom: -18, left: 0, fontSize: '0.65rem', color: '#ef4444', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
+                                    <AlertCircle size={10} /> {errors['name']}
                                 </div>
                             )}
                         </div>
                     </div>
                     <div className={styles.formGroup}>
-                        <label className={styles.label}>Age (10–16)</label>
+                        <label className={styles.label} style={{ fontSize: '0.75rem', marginBottom: '6px', fontWeight: 700 }}>Age (10–16)</label>
                         <div style={{ position: 'relative' }}>
                             <input
                                 className={`${styles.input} ${styles.ageInput}`}
-                                style={(submitAttempted || touched['age']) && errors['age'] ? {
-                                    borderColor: '#ef4444',
-                                    outline: 'none',
-                                    boxShadow: '0 0 0 2px rgba(239,68,68,0.25)',
-                                } : {}}
+                                style={{ 
+                                    padding: '8px 12px', fontSize: '0.9rem', height: '40px',
+                                    ...((touched['age'] || submitAttempted) && errors['age'] ? { borderColor: '#ef4444' } : {})
+                                }}
                                 type="number"
                                 name="age"
                                 min="10"
                                 max="16"
-                                step="1"
                                 value={formData.age as string}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
@@ -213,159 +248,62 @@ export const InputForm = ({ onAnalyze, isFullPage = false }: InputFormProps) => 
                                         e.currentTarget.value = e.currentTarget.value.slice(0, 2);
                                     }
                                 }}
-                                placeholder="10–16"
+                                placeholder="12"
                             />
-                            {(submitAttempted || touched['age']) && errors['age'] && (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 5, fontSize: '0.72rem', color: '#ef4444', fontWeight: 700, animation: 'fadeIn 0.15s ease' }}>
-                                    <AlertCircle size={12} /> {errors['age']}
+                            {(touched['age'] || submitAttempted) && errors['age'] && (
+                                <div style={{ position: 'absolute', bottom: -18, left: 0, fontSize: '0.65rem', color: '#ef4444', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
+                                    <AlertCircle size={10} /> {errors['age']}
                                 </div>
                             )}
                         </div>
                     </div>
                     <div className={styles.formGroup}>
-                        <label className={styles.label}>Gender</label>
-                        <select className={styles.select} name="gender" value={formData.gender as string} onChange={handleChange} required>
+                        <label className={styles.label} style={{ fontSize: '0.75rem', marginBottom: '6px', fontWeight: 700 }}>Gender</label>
+                        <select 
+                            className={styles.select} 
+                            style={{ padding: '8px 12px', fontSize: '0.9rem', height: '40px' }} 
+                            name="gender" 
+                            value={formData.gender as string} 
+                            onChange={handleChange}
+                        >
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
                         </select>
                     </div>
                 </div>
 
-                {/* ── Tabs with error badges ── */}
-                <div className={styles.tabs} style={{ marginBottom: '24px', maxWidth: '320px' }}>
-                    <button
-                        type="button"
-                        className={`${styles.tab} ${activeTab === 'body' ? styles.tabActive : ''}`}
-                        onClick={() => setActiveTab('body')}
-                        style={{ position: 'relative' }}
-                    >
-                        BIOMETRICS
-                        {bodyErrCount > 0 && (
-                            <span style={{
-                                position: 'absolute', top: -6, right: -6,
-                                background: '#ef4444', color: '#fff',
-                                borderRadius: '50%', fontSize: 10, fontWeight: 800,
-                                width: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                boxShadow: '0 1px 4px rgba(239,68,68,0.5)'
-                            }}>{bodyErrCount}</span>
-                        )}
-                    </button>
-                    <button
-                        type="button"
-                        className={`${styles.tab} ${activeTab === 'performance' ? styles.tabActive : ''}`}
-                        onClick={() => setActiveTab('performance')}
-                        style={{ position: 'relative' }}
-                    >
-                        PERFORMANCE
-                        {perfErrCount > 0 && (
-                            <span style={{
-                                position: 'absolute', top: -6, right: -6,
-                                background: '#ef4444', color: '#fff',
-                                borderRadius: '50%', fontSize: 10, fontWeight: 800,
-                                width: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                boxShadow: '0 1px 4px rgba(239,68,68,0.5)'
-                            }}>{perfErrCount}</span>
-                        )}
-                    </button>
+                <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'minmax(300px, 1fr) minmax(300px, 1fr)', 
+                    gap: '40px',
+                    padding: '30px',
+                    background: '#ffffff',
+                    borderRadius: '16px',
+                    border: '1px solid #e5e7eb',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }}>
+                    <div>
+                        <h4 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#111827', marginBottom: '24px', textTransform: 'uppercase', letterSpacing: '1px', borderLeft: '4px solid #AAFF00', paddingLeft: '12px' }}>Body Metrics</h4>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            {bodyFields.map(renderField)}
+                        </div>
+                    </div>
+                    <div>
+                        <h4 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#111827', marginBottom: '24px', textTransform: 'uppercase', letterSpacing: '1px', borderLeft: '4px solid #AAFF00', paddingLeft: '12px' }}>Performance</h4>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            {perfFields.map(renderField)}
+                        </div>
+                    </div>
                 </div>
 
-                {/* ── Metric fields ── */}
-                <div className={isFullPage ? styles.formGrid : ''}>
-                    {(activeTab === 'body' ? bodyFields : perfFields).map(field => {
-                        const limit = METRIC_LIMITS[field.name];
-                        const error = errors[field.name];
-                        const isTouched = touched[field.name] || submitAttempted;
-                        const showError = isTouched && !!error;
-
-                        return (
-                            <div key={field.name} className={styles.formGroup}>
-                                <label className={styles.label}>
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                        {field.icon} {field.label} ({field.unit})
-                                    </span>
-                                </label>
-
-                                <div style={{ position: 'relative' }}>
-                                    <input
-                                        className={styles.input}
-                                        style={showError ? {
-                                            borderColor: '#ef4444',
-                                            outline: 'none',
-                                            boxShadow: '0 0 0 2px rgba(239,68,68,0.25)',
-                                        } : {}}
-                                        type="number"
-                                        step={limit?.step ?? 0.1}
-                                        min={limit?.min}
-                                        max={limit?.max}
-                                        name={field.name}
-                                        value={formData[field.name] as string | number}
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        placeholder={field.placeholder}
-                                    />
-
-                                    {/* Range hint — shown when no error */}
-                                    {limit && !showError && (
-                                        <div style={{
-                                            fontSize: '0.68rem',
-                                            color: '#9ca3af',
-                                            marginTop: 4,
-                                            paddingLeft: 2,
-                                        }}>
-                                            {limit.min} – {limit.max} {field.unit}
-                                        </div>
-                                    )}
-
-                                    {/* Error message — replaces range hint */}
-                                    {showError && (
-                                        <div style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: 5,
-                                            marginTop: 5,
-                                            fontSize: '0.72rem',
-                                            color: '#ef4444',
-                                            fontWeight: 700,
-                                            animation: 'fadeIn 0.15s ease',
-                                        }}>
-                                            <AlertCircle size={12} />
-                                            {error}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-
-                {/* ── Global error banner if submit was attempted and errors exist ── */}
                 {submitAttempted && hasAnyError && (
-                    <div style={{
-                        marginTop: 20,
-                        padding: '12px 16px',
-                        background: 'rgba(239,68,68,0.08)',
-                        border: '1px solid rgba(239,68,68,0.35)',
-                        borderRadius: 10,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 10,
-                        fontSize: '0.8rem',
-                        color: '#b91c1c',
-                        fontWeight: 600,
-                    }}>
-                        <AlertCircle size={16} style={{ flexShrink: 0 }} />
-                        Please fix the highlighted fields before analyzing.
-                        Check both <strong>BIOMETRICS</strong> and <strong>PERFORMANCE</strong> tabs.
+                    <div style={{ marginTop: 16, color: '#ef4444', fontSize: '0.7rem', fontWeight: 600, textAlign: 'center' }}>
+                        Please correct the errors before proceeding.
                     </div>
                 )}
 
-                {/* ── Submit button ── */}
-                <div style={{ marginTop: '32px', display: 'flex', justifyContent: isFullPage ? 'center' : 'flex-start' }}>
-                    <button
-                        type="submit"
-                        className={styles.analyzeBtn}
-                        style={{ width: isFullPage ? '280px' : '100%', margin: 0, opacity: submitAttempted && hasAnyError ? 0.6 : 1 }}
-                    >
+                <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'center' }}>
+                    <button type="submit" className={styles.analyzeBtn} style={{ width: '280px', margin: 0 }}>
                         💾 ANALYZE PERFORMANCE
                     </button>
                 </div>

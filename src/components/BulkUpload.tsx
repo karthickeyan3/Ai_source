@@ -10,10 +10,7 @@ interface BulkUploadProps {
 }
 
 export const BulkUpload = ({ onBulkResults }: BulkUploadProps) => {
-    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
+    const processFile = (file: File) => {
         Papa.parse(file, {
             header: true,
             skipEmptyLines: true,
@@ -49,7 +46,7 @@ export const BulkUpload = ({ onBulkResults }: BulkUploadProps) => {
                     };
 
                     const rawFormData: FormData = {
-                        name: (normalizedRow['student name'] || normalizedRow['student name'] || normalizedRow['name'] || 'Athlete').toString().replace(/^["']|["']$/g, ''),
+                        name: (normalizedRow['student name'] || normalizedRow['name'] || 'Athlete').toString().replace(/^["']|["']$/g, ''),
                         age: Math.min(16, Math.max(10, parseVal(normalizedRow['age'], 12))),
                         gender: 'Female' as Gender, // Default
                         height: parseVal(normalizedRow['height (cm)'] || normalizedRow['height'], 160),
@@ -79,6 +76,11 @@ export const BulkUpload = ({ onBulkResults }: BulkUploadProps) => {
                 onBulkResults(assessmentResults);
             }
         });
+    };
+
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) processFile(file);
     };
 
     const downloadTemplate = () => {
@@ -150,6 +152,24 @@ export const BulkUpload = ({ onBulkResults }: BulkUploadProps) => {
                         cursor: 'pointer',
                         transition: 'border-color 0.2s, background 0.2s',
                     }}
+                    onDragOver={e => {
+                        e.preventDefault();
+                        (e.currentTarget as HTMLLabelElement).style.borderColor = '#111827';
+                        (e.currentTarget as HTMLLabelElement).style.background = '#f3f4f6';
+                    }}
+                    onDragLeave={e => {
+                        (e.currentTarget as HTMLLabelElement).style.borderColor = '#d1d5db';
+                        (e.currentTarget as HTMLLabelElement).style.background = '#f9fafb';
+                    }}
+                    onDrop={e => {
+                        e.preventDefault();
+                        const file = e.dataTransfer.files?.[0];
+                        if (file && file.type === 'text/csv') {
+                            processFile(file);
+                        } else {
+                            alert('Please upload a valid CSV file.');
+                        }
+                    }}
                     onMouseEnter={e => {
                         (e.currentTarget as HTMLLabelElement).style.borderColor = '#111827';
                         (e.currentTarget as HTMLLabelElement).style.background = '#f3f4f6';
@@ -165,9 +185,9 @@ export const BulkUpload = ({ onBulkResults }: BulkUploadProps) => {
                         onChange={handleFileUpload}
                         style={{ display: 'none' }}
                     />
-                    <span style={{ fontSize: '2rem' }}>📂</span>
-                    <div className={styles.uploadTitle}>DRAG &amp; DROP CSV FILE</div>
-                    <div className={styles.uploadSub}>or click to browse from your computer</div>
+                    <span style={{ fontSize: '2.5rem' }}>📂</span>
+                    <div className={styles.uploadTitle}>SELECT CSV FILE</div>
+                    <div className={styles.uploadSub}>or drag & drop the file here</div>
                 </label>
             </div>
         </div>
