@@ -187,7 +187,7 @@ export const BulkUpload = ({ onBulkResults }: BulkUploadProps) => {
                     />
                     <span style={{ fontSize: '2.5rem' }}>📂</span>
                     <div className={styles.uploadTitle}>SELECT CSV FILE</div>
-                    <div className={styles.uploadSub}>or drag & drop the file here</div>
+                    <div className={styles.uploadSub}> click here</div>
                 </label>
             </div>
         </div>
