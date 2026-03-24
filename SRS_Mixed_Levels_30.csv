@@ -1,0 +1,10 @@
+Performance Engine formulas
+Stage,                  Metric Type,                                      Formula,                                                           Explanation
+"Biological Adjustment","Age Difference (Delta)",                         "12 - Actual Age",                                                  "Defines the biological distance of the athlete to the Age-12 baseline."
+"Normalization",        "Speed/Agility Metrics (Lower is Better)",        "Raw Value * (1 - (Delta * 0.06))",                                 "Adjusts raw time results to a standardized age-12 biological maturity point (6% annual improvement)."
+"Normalization",        "Power/Strength Metrics (Higher is Better)",      "Raw Value * (1 + (Delta * 0.06))",                                 "Adjusts power results to a standardized age-12 biological maturity point (6% annual improvement)."
+"Ranking",              "Percentile Calculation (Linear Interpolation)",  "P_low + ((V_adj - V_low) / (V_high - V_low)) * (P_high - P_low)",  "Determines the athlete's rank (0-100%) by comparing their adjusted score against the national dataset."
+"Overall Assessment",   "Overall Athletic Score",                         "(Average of all % * 0.8) + (Highest % * 0.2)",                     "Balanced score that highlights both consistent performance and exceptional peak talent (80/20 weight)."
+"Talent ID",            "Sport Match Score",                              "Sum(Trait % * Weight) / Sum(Weights)",                             "Calculates suitability/match percentage for 20+ sports based on their unique physiological requirements."
+"Body Composition",     "BMI (Body Mass Index)",                          "Weight (kg) / Height (m)^2",                                       "Compared directly against peers in the same age group to assess growth and health status."
+"Body Composition",     "Leg-to-Height Ratio",                            "Hip-to-Toe Length / Total Height",                                 "Predicts future growth trajectory (Ratio > 0.52 indicates 'Long-limbed' / Pre-growth spurt potential)."

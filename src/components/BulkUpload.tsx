@@ -32,8 +32,8 @@ export const BulkUpload = ({ onBulkResults }: BulkUploadProps) => {
                     const parseVal = (val: unknown, fallback: number, isTime = false) => {
                         if (val === undefined || val === null || val === '') return fallback;
                         if (typeof val === 'number') {
-                            // If time in ms (e.g. > 10), convert to seconds
-                            if (isTime && val > 10) return val / 1000;
+                            // If time in ms (e.g. > 50), convert to seconds
+                            if (isTime && val > 50) return val / 1000;
                             return val;
                         }
                         // Replace common comma separators and try parsing
@@ -41,7 +41,7 @@ export const BulkUpload = ({ onBulkResults }: BulkUploadProps) => {
                         const num = parseFloat(cleaned);
                         if (isNaN(num)) return fallback;
                         // If time in ms (e.g. 1256.10), convert to seconds
-                        if (isTime && num > 10) return num / 1000;
+                        if (isTime && num > 50) return num / 1000;
                         return num;
                     };
 
