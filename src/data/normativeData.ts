@@ -1,4 +1,5 @@
 import type { SportNorms, NormativeBreakpoints } from '../types';
+import { getSportProfiles } from '../utils/sportProfileService';
 
 /**
  * Core Normative Data for all sports (Ages 10-16).
@@ -257,7 +258,8 @@ const sportsList = [
     'Soccer', 'Cricket', 'Tennis', 'Swimming', 'Track & Field', 'Gymnastics', 'Volleyball', 'Cycling', 'Rowing',
     'Swimming - Sprint (50m/100m)', 'Swimming - Distance (400m/1500m)',
     'Track & Field - Sprint (100m/200m)', 'Track & Field - Middle Distance (800m/1500m)', 'Track & Field - Long Distance (5K/10K)',
-    'Track & Field - Jumps (High/Long/Triple)', 'Track & Field - Throws (Shot/Discus/Javelin)'
+    'Track & Field - Jumps (High)', 'Track & Field - Jumps (Long)', 'Track & Field - Jumps (Triple)',
+    'Track & Field - Throws (Shot/Discus/Javelin)'
 ];
 
 /**
@@ -266,10 +268,14 @@ const sportsList = [
  * For INVERSE metrics (lower = better: sprint, tTest, reactionTime, responseTime):
  *   mult < 1 = faster/better elite standard for that sport
  *   mult > 1 = slower/less critical for that sport
+ *
+ * NOTE: These hardcoded values are the FALLBACK defaults.
+ * At runtime, getSportProfiles() from sportProfileService merges these
+ * with any admin overrides stored in localStorage.
  */
 type SportProfile = {
-    heightRange: [number, number]; // [p50_base, p90_base] for age-14 Male
-    weightRange: [number, number]; // [p50_base, p90_base] for age-14 Male
+    heightRange: [number, number]; // [p50_cm, p90_cm] for age-14 Male
+    weightRange: [number, number]; // [p50_kg, p90_kg] for age-14 Male
     verticalJumpMult: number;
     sprintMult: number;
     tTestMult: number;
@@ -278,34 +284,27 @@ type SportProfile = {
     sitAndReachMult: number;
 };
 
-const sportProfiles: Record<string, SportProfile> = {
-    //                         height      weight      vjump  sprint  tTest  react  plank  stretch
-    'Soccer': { heightRange: [165, 175], weightRange: [55, 70], verticalJumpMult: 0.88, sprintMult: 0.94, tTestMult: 0.95, reactionTimeMult: 1.03, plankTestMult: 0.93, sitAndReachMult: 0.91 },
-    'Track & Field': { heightRange: [164, 175], weightRange: [52, 66], verticalJumpMult: 1.02, sprintMult: 0.91, tTestMult: 1.03, reactionTimeMult: 0.95, plankTestMult: 0.84, sitAndReachMult: 0.96 },
-    'Swimming': { heightRange: [170, 182], weightRange: [60, 76], verticalJumpMult: 0.72, sprintMult: 1.15, tTestMult: 1.10, reactionTimeMult: 1.11, plankTestMult: 1.12, sitAndReachMult: 1.09 },
-    'Gymnastics': { heightRange: [148, 158], weightRange: [38, 52], verticalJumpMult: 1.03, sprintMult: 1.08, tTestMult: 1.02, reactionTimeMult: 1.04, plankTestMult: 1.30, sitAndReachMult: 1.41 },
-    'Cricket': { heightRange: [166, 178], weightRange: [58, 74], verticalJumpMult: 0.78, sprintMult: 1.04, tTestMult: 1.04, reactionTimeMult: 0.88, plankTestMult: 0.88, sitAndReachMult: 0.87 },
-    'Tennis': { heightRange: [168, 180], weightRange: [58, 72], verticalJumpMult: 0.86, sprintMult: 1.02, tTestMult: 0.93, reactionTimeMult: 0.96, plankTestMult: 0.93, sitAndReachMult: 0.98 },
-    'Volleyball': { heightRange: [175, 188], weightRange: [66, 82], verticalJumpMult: 1.10, sprintMult: 1.04, tTestMult: 1.02, reactionTimeMult: 0.96, plankTestMult: 0.93, sitAndReachMult: 0.96 },
-    'Cycling': { heightRange: [162, 174], weightRange: [50, 64], verticalJumpMult: 0.70, sprintMult: 1.15, tTestMult: 1.10, reactionTimeMult: 1.11, plankTestMult: 1.21, sitAndReachMult: 0.91 },
-    'Rowing': { heightRange: [172, 186], weightRange: [70, 88], verticalJumpMult: 0.81, sprintMult: 1.15, tTestMult: 1.10, reactionTimeMult: 1.18, plankTestMult: 1.40, sitAndReachMult: 1.04 },
-
-    // Sub-events
-    'Swimming - Sprint (50m/100m)': { heightRange: [172, 184], weightRange: [62, 78], verticalJumpMult: 0.85, sprintMult: 1.05, tTestMult: 1.05, reactionTimeMult: 0.95, plankTestMult: 1.15, sitAndReachMult: 1.05 },
-    'Swimming - Distance (400m/1500m)': { heightRange: [168, 180], weightRange: [58, 74], verticalJumpMult: 0.65, sprintMult: 1.20, tTestMult: 1.15, reactionTimeMult: 1.15, plankTestMult: 1.25, sitAndReachMult: 1.10 },
-    'Track & Field - Sprint (100m/200m)': { heightRange: [165, 178], weightRange: [55, 70], verticalJumpMult: 1.15, sprintMult: 0.85, tTestMult: 1.00, reactionTimeMult: 0.90, plankTestMult: 0.90, sitAndReachMult: 0.90 },
-    'Track & Field - Middle Distance (800m/1500m)': { heightRange: [162, 174], weightRange: [50, 64], verticalJumpMult: 0.85, sprintMult: 0.95, tTestMult: 1.05, reactionTimeMult: 1.05, plankTestMult: 1.10, sitAndReachMult: 0.95 },
-    'Track & Field - Long Distance (5K/10K)': { heightRange: [158, 170], weightRange: [45, 58], verticalJumpMult: 0.70, sprintMult: 1.05, tTestMult: 1.10, reactionTimeMult: 1.15, plankTestMult: 1.35, sitAndReachMult: 1.00 },
-    'Track & Field - Jumps (High/Long/Triple)': { heightRange: [170, 182], weightRange: [58, 74], verticalJumpMult: 1.30, sprintMult: 0.92, tTestMult: 0.95, reactionTimeMult: 0.95, plankTestMult: 1.00, sitAndReachMult: 1.10 },
-    'Track & Field - Throws (Shot/Discus/Javelin)': { heightRange: [175, 188], weightRange: [75, 95], verticalJumpMult: 1.05, sprintMult: 1.10, tTestMult: 1.15, reactionTimeMult: 1.05, plankTestMult: 0.95, sitAndReachMult: 0.95 },
-};
+/** Convert localStorage SportProfileOverride → internal SportProfile tuple format */
+const toInternalProfile = (p: ReturnType<typeof getSportProfiles>[string]): SportProfile => ({
+    heightRange: [p.heightP50, p.heightP90],
+    weightRange: [p.weightP50, p.weightP90],
+    verticalJumpMult: p.verticalJumpMult,
+    sprintMult: p.sprintMult,
+    tTestMult: p.tTestMult,
+    reactionTimeMult: p.reactionTimeMult,
+    plankTestMult: p.plankTestMult,
+    sitAndReachMult: p.sitAndReachMult,
+});
 
 /**
  * Initialize all sports with fully sport-specific elite norms.
- * Each sport gets unique values for all performance metrics
- * so the radar chart reflects genuine physiological differences.
+ * Reads profiles from sportProfileService (localStorage overrides merged with defaults).
+ * Call rebuildNormativeData() from the admin panel after saving profile changes.
  */
 const initializeAllSports = () => {
+    // Load profiles: localStorage overrides merged on top of hardcoded defaults
+    const overrides = getSportProfiles();
+
     sportsList.forEach(sport => {
         if (!normativeData[sport]) {
             normativeData[sport] = JSON.parse(JSON.stringify(normativeData.Basketball));
@@ -313,8 +312,10 @@ const initializeAllSports = () => {
     });
 
     sportsList.forEach(sport => {
-        const profile = sportProfiles[sport];
-        if (!profile) return;
+        // getSportProfiles() already merges localStorage overrides on top of hardcoded defaults
+        const overrideEntry = overrides[sport];
+        if (!overrideEntry) return; // sport has no profile defined — skip
+        const profile: SportProfile = toInternalProfile(overrideEntry);
 
         (['Male', 'Female'] as const).forEach(g => {
             // Female athletes scale down ~8-10% on raw measurements
@@ -452,6 +453,14 @@ const initializeAllSports = () => {
 };
 
 initializeAllSports();
+
+/**
+ * Call this from the Admin dashboard after saving sport profile changes.
+ * Rebuilds all sport normative data from the updated localStorage profiles.
+ */
+export const rebuildNormativeData = () => {
+    initializeAllSports();
+};
 
 
 

@@ -3,6 +3,11 @@ import type { SportNorms, Gender } from '../types';
 
 const STORAGE_KEY = 'srs_normative_data';
 
+// Shared helper to ensure consistent sport naming across the entire app
+export const normalizeSportName = (name: string): string => {
+    return name.trim().replace(/[–—]/g, '-');
+};
+
 export const getNormativeData = (): { [key: string]: SportNorms } => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (!stored) return normativeData;
@@ -10,15 +15,38 @@ export const getNormativeData = (): { [key: string]: SportNorms } => {
     try {
         let parsed = JSON.parse(stored);
 
-        const newKey = 'Track & Field - Long Distance (5K/10K)';
+        // 1. CLEANUP & NORMALIZE: Ensure dash consistency and remove legacy grouped sports
+        let modified = false;
+        
+        // Map of legacy/incorrect names to new ones if necessary
+        const legacyJumps = 'Track & Field - Jumps (High/Long/Triple)';
 
         Object.keys(parsed).forEach(key => {
-            if (key.includes('Long Distance') && (key.includes('5000m') || key.includes('10000m'))) {
-                parsed[newKey] = parsed[key];
-                if (key !== newKey) delete parsed[key];
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+            // Standardize all dashes to hyphens
+            const normalizedKey = normalizeSportName(key);
+            if (normalizedKey !== key) {
+                parsed[normalizedKey] = parsed[key];
+                delete parsed[key];
+                modified = true;
             }
         });
+
+        // Specific legacy removal
+        Object.keys(parsed).forEach(key => {
+            if (key === legacyJumps || (key.includes('Jumps') && key.includes('/'))) {
+                delete parsed[key];
+                modified = true;
+            }
+            // Also remove the old "Long Distance" combined key if it exists
+            if (key.includes('Long Distance') && (key.includes('5000m') || key.includes('10000m'))) {
+                delete parsed[key];
+                modified = true;
+            }
+        });
+
+        if (modified) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+        }
 
         const merged = { ...normativeData };
         const AGES = ['10', '11', '12', '13', '14', '15', '16'];
@@ -34,25 +62,24 @@ export const getNormativeData = (): { [key: string]: SportNorms } => {
             });
         };
 
-        // Deep merge logic to ensure new metrics/ages/sports appear
+        // Deep merge: only keep user data for sports that actually exist in the current system
         Object.keys(parsed).forEach(sport => {
-            if (!merged[sport]) {
-                merged[sport] = parsed[sport];
-            }
+            const cleanSport = normalizeSportName(sport);
+            if (!merged[cleanSport]) return; // definitely ignore legacy sports not in the current system
 
             GENDERS.forEach(g => {
-                if (!merged[sport][g]) merged[sport][g] = {};
+                if (!merged[cleanSport][g]) merged[cleanSport][g] = {};
 
                 AGES.forEach(age => {
-                    const sourceAgeData = merged[sport][g][age] || {};
+                    const sourceAgeData = merged[cleanSport][g][age] || {};
                     const userAgeData = (parsed[sport] && parsed[sport][g] && parsed[sport][g][age]) ? parsed[sport][g][age] : {};
 
-                    merged[sport][g][age] = {
+                    merged[cleanSport][g][age] = {
                         ...sourceAgeData,
                         ...userAgeData
                     };
 
-                    ensureMetrics(merged[sport][g][age]);
+                    ensureMetrics(merged[cleanSport][g][age]);
                 });
             });
         });

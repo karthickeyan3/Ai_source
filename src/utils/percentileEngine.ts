@@ -76,18 +76,6 @@ export const calculateMetricStats = (
     const isStructural = ['height', 'weight', 'bmi', 'shoulderGirth', 'hipCircumference',
         'waistCircumference', 'hipToToe', 'skinfold'].includes(metricKey);
 
-    // For display (ranking table), BMI is treated as a PEER-RELATIVE metric:
-    // The normative BMI table is stored low→high (p10=lowest BMI, p90=highest BMI),
-    // matching height and weight direction. A child near p50 gets ~50th percentile.
-    // This ensures that if height AND weight are both below average, BMI also reads
-    // as near-average (not falsely elite due to inversion).
-    //
-    // For sport-matching (forDisplay=false), BMI stays inverted (lower = leaner = better).
-    if (forDisplay && metricKey === 'bmi') {
-        isInverse = false;
-    }
-
-    // Endurance sport inversion (lighter weight = better) ONLY applies during sport-matching,
     // NOT when displaying peer-relative percentiles in the rankings table.
     if (!forDisplay) {
         const enduranceSports = ['distance', 'rowing', 'cycling', 'marathon', 'cross country'];
@@ -161,7 +149,7 @@ export const calculateMetricStats = (
     }
 
     // zScore using adjusted value
-    const sd = (norms.p75 - norms.p25) / 1.35;
+    const sd = Math.abs((norms.p75 - norms.p25) / 1.35);
     let zScore = sd !== 0 ? (adjustedValue - norms.p50) / sd : 0;
     if (isInverse) zScore = -zScore;
 

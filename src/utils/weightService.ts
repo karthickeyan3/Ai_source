@@ -1,3 +1,4 @@
+import { normalizeSportName } from './dataService';
 
 export interface SportWeights {
     speed: number;
@@ -19,11 +20,11 @@ const STORAGE_KEY = 'srs_sport_weights';
 const DEFAULT_WEIGHTS: Record<string, SportConfig> = {
     'Basketball': {
         name: 'Basketball',
-        weights: { speed: 15, agility: 20, power: 15, endurance: 10, strength: 10, flexibility: 10, jumping: 20 }
+        weights: { speed: 18, agility: 25, power: 15, endurance: 10, strength: 10, flexibility: 10, jumping: 12 }
     },
     'Cricket': {
         name: 'Cricket',
-        weights: { speed: 10, agility: 15, power: 10, endurance: 20, strength: 10, flexibility: 15, jumping: 20 }
+        weights: { speed: 15, agility: 25, power: 10, endurance: 20, strength: 10, flexibility: 15, jumping: 5 }
     },
     'Tennis': {
         name: 'Tennis',
@@ -49,9 +50,17 @@ const DEFAULT_WEIGHTS: Record<string, SportConfig> = {
         name: 'Track & Field - Long Distance (5K/10K)',
         weights: { speed: 10, agility: 10, power: 10, endurance: 40, strength: 15, flexibility: 5, jumping: 10 }
     },
-    'Track & Field - Jumps (High/Long/Triple)': {
-        name: 'Track & Field - Jumps (High/Long/Triple)',
-        weights: { speed: 20, agility: 15, power: 20, endurance: 10, strength: 10, flexibility: 5, jumping: 20 }
+    'Track & Field - Jumps (High)': {
+        name: 'Track & Field - Jumps (High)',
+        weights: { speed: 10, agility: 5, power: 25, endurance: 0, strength: 0, flexibility: 15, jumping: 45 }
+    },
+    'Track & Field - Jumps (Long)': {
+        name: 'Track & Field - Jumps (Long)',
+        weights: { speed: 25, agility: 5, power: 25, endurance: 0, strength: 0, flexibility: 0, jumping: 45 }
+    },
+    'Track & Field - Jumps (Triple)': {
+        name: 'Track & Field - Jumps (Triple)',
+        weights: { speed: 22, agility: 5, power: 25, endurance: 0, strength: 3, flexibility: 0, jumping: 45 }
     },
     'Track & Field - Throws (Shot/Discus/Javelin)': {
         name: 'Track & Field - Throws (Shot/Discus/Javelin)',
@@ -63,7 +72,7 @@ const DEFAULT_WEIGHTS: Record<string, SportConfig> = {
     },
     'Volleyball': {
         name: 'Volleyball',
-        weights: { speed: 15, agility: 15, power: 15, endurance: 10, strength: 10, flexibility: 10, jumping: 25 }
+        weights: { speed: 15, agility: 20, power: 15, endurance: 15, strength: 10, flexibility: 10, jumping: 15 }
     },
     'Cycling': {
         name: 'Cycling',
@@ -86,19 +95,33 @@ export const getSportWeights = (): Record<string, SportConfig> => {
         if (!stored) return DEFAULT_WEIGHTS;
         let parsed = JSON.parse(stored);
 
-        const newKey = 'Track & Field - Long Distance (5K/10K)';
+        // Migration logic
+        let modified = false;
 
+        // 1. CLEANUP & NORMALIZE: Ensure dash consistency and remove legacy/stale format
         Object.keys(parsed).forEach(key => {
-            if (key.includes('Long Distance') && (key.includes('5000m') || key.includes('10000m'))) {
-                parsed[newKey] = {
-                    ...parsed[key],
-                    name: newKey
-                };
-                if (key !== newKey) delete parsed[key];
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+            const normalizedKey = normalizeSportName(key);
+            if (normalizedKey !== key) {
+                parsed[normalizedKey] = { ...parsed[key], name: normalizedKey };
+                delete parsed[key];
+                modified = true;
             }
         });
-        return parsed || DEFAULT_WEIGHTS;
+
+        // 2. Clear out legacy combined Jumps string
+        Object.keys(parsed).forEach(key => {
+            if (key.includes('Jumps') && key.includes('/')) {
+                delete parsed[key];
+                modified = true;
+            }
+        });
+
+        if (modified) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+        }
+
+        // Merge: defaults first, then overrides on top (ensures new sports appear)
+        return { ...DEFAULT_WEIGHTS, ...parsed };
     } catch (e) {
         console.error('Error loading sport weights:', e);
         return DEFAULT_WEIGHTS;

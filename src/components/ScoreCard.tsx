@@ -116,7 +116,9 @@ export const ScoreCard = ({ result, onSportSelect }: ScoreCardProps) => {
                                     textTransform: 'uppercase'
                                 }}
                             >
-                                {s.sport.split(' ')[0]}
+                                {s.sport.includes(' - ') 
+                                    ? s.sport.split(' - ')[1].replace('Jumps ', '').replace(' (', '').replace(')', '')
+                                    : s.sport.split(' ')[0]}
                             </button>
                         ))}
                     </div>
