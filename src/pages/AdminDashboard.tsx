@@ -3,9 +3,9 @@ import { getSportWeights, saveSportWeights, addSportWeight, deleteSportWeight } 
 import type { SportConfig, SportWeights } from '../utils/weightService';
 import {
     getSportProfiles, saveSportProfiles, resetSportProfile,
-    DEFAULT_SPORT_PROFILES, MULTIPLIER_FIELDS,
+    DEFAULT_SPORT_ANCHORS, METRIC_KEYS
 } from '../utils/sportProfileService';
-import type { SportProfileOverride } from '../utils/sportProfileService';
+import type { SportAnchor } from '../utils/sportProfileService';
 import { rebuildNormativeData } from '../data/normativeData';
 import styles from '../App.module.css';
 import { Save, LogOut, Plus, Trash2, ShieldCheck, AlertCircle, RotateCcw, Info, ChevronUp, ChevronDown } from 'lucide-react';
@@ -13,6 +13,8 @@ import { Save, LogOut, Plus, Trash2, ShieldCheck, AlertCircle, RotateCcw, Info, 
 interface AdminDashboardProps {
     onLogout: () => void;
 }
+
+const PERCENTILES = ['p10', 'p25', 'p50', 'p75', 'p90'] as const;
 
 export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
     const [activeTab, setActiveTab] = useState<'weights' | 'profiles'>('weights');
@@ -24,10 +26,14 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
     const [showAddForm, setShowAddForm] = useState(false);
 
     // ── Sport Profiles tab state ──────────────────────────────────────────────
-    const [profiles, setProfiles] = useState<Record<string, SportProfileOverride>>(() => getSportProfiles());
+    const [profiles, setProfiles] = useState<Record<string, SportAnchor>>(() => getSportProfiles());
     const [profileSearch, setProfileSearch] = useState('');
     const [expandedSport, setExpandedSport] = useState<string | null>(null);
     const [profilesSaved, setProfilesSaved] = useState(false);
+    const [selectedGender, setSelectedGender] = useState<'Male' | 'Female'>('Male');
+    
+    const [newProfileSport, setNewProfileSport] = useState({ name: '' });
+    const [showAddProfileForm, setShowAddProfileForm] = useState(false);
 
     const handleSave = () => {
         // Validate all totals (handle empty strings as 0 for calculation)
@@ -71,12 +77,38 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
     };
 
     // ── Sport Profile handlers ────────────────────────────────────────────────
-    const updateProfile = (sport: string, field: keyof SportProfileOverride, value: string) => {
-        const num = parseFloat(value);
-        setProfiles(prev => ({
-            ...prev,
-            [sport]: { ...prev[sport], [field]: isNaN(num) ? 0 : num }
-        }));
+    
+    const handleAddSportProfileSubmit = () => {
+        if (!newProfileSport.name.trim()) return;
+        const name = newProfileSport.name.trim();
+        if (profiles[name]) {
+            alert("Sport already exists!");
+            return;
+        }
+        // Deep copy Basketball as template
+        const template = JSON.parse(JSON.stringify(profiles['Basketball'] || DEFAULT_SPORT_ANCHORS['Basketball']));
+        setProfiles(prev => ({ ...prev, [name]: template }));
+        setProfilesSaved(false);
+        setExpandedSport(name);
+        setNewProfileSport({ name: '' });
+        setShowAddProfileForm(false);
+    };
+
+    const updateProfileMetric = (sport: string, gender: 'Male' | 'Female', metric: string, pLevel: string, value: string) => {
+        let num = parseFloat(value);
+        if (isNaN(num)) num = 0;
+        
+        setProfiles(prev => {
+            const sportData = { ...prev[sport] };
+            const genderData = { ...sportData[gender] };
+            const metricData = { ...genderData[metric] };
+            (metricData as any)[pLevel] = num;
+            
+            genderData[metric] = metricData;
+            sportData[gender] = genderData;
+            
+            return { ...prev, [sport]: sportData };
+        });
         setProfilesSaved(false);
     };
 
@@ -102,23 +134,19 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
     );
 
     const isModified = (sport: string): boolean => {
-        const def = DEFAULT_SPORT_PROFILES[sport];
-        if (!def) return true;
+        const def = DEFAULT_SPORT_ANCHORS[sport];
+        if (!def) return true; // Custom sport
         const cur = profiles[sport];
         return JSON.stringify(cur) !== JSON.stringify(def);
     };
 
     const updateWeight = (sportName: string, attr: keyof SportWeights, value: string) => {
-        // Allow empty string in state so user can delete the value
         const val = value === '' ? '' : (parseInt(value) || 0);
         setConfigs(prev => ({
             ...prev,
             [sportName]: {
                 ...prev[sportName],
-                weights: {
-                    ...prev[sportName].weights,
-                    [attr]: val as any
-                }
+                weights: { ...prev[sportName].weights, [attr]: val as any }
             }
         }));
     };
@@ -128,15 +156,6 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
             .filter(s => s.name.toLowerCase().includes(searchTerm.toLowerCase()))
             .sort((a, b) => a.name.localeCompare(b.name));
     }, [configs, searchTerm]);
-
-    // multiplier colour helper
-    const multColor = (val: number, inverse: boolean) => {
-        const isGood = inverse ? val < 1.0 : val > 1.0;
-        const isBad  = inverse ? val > 1.0 : val < 1.0;
-        if (isGood) return '#AAFF00';
-        if (isBad)  return '#f97316';
-        return '#888';
-    };
 
     return (
         <div className={styles.adminContainer} style={{ background: '#0a0a0a', minHeight: '100vh', borderRadius: 20 }}>
@@ -179,24 +198,6 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                 ))}
             </div>
 
-            {/* Info Cards */}
-            {/* <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '2.5rem' }}>
-                <div className={styles.card} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', color: '#fff' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-                        <div style={{ background: 'rgba(170, 255, 0, 0.1)', padding: 8, borderRadius: 8 }}><ShieldCheck size={20} color="#AAFF00" /></div>
-                        <h3 style={{ margin: 0, fontSize: '0.9rem', color: '#999' }}>NORMALIZATION RULES</h3>
-                    </div>
-                    <p style={{ fontSize: '0.85rem', color: '#bbb', lineHeight: 1.6 }}>Each sport's total weight must equal <strong>100%</strong>. This ensures fair comparison across attributes and age groups using the Relative Age Effect (RAE) growth coefficients.</p>
-                </div>
-                <div className={styles.card} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', color: '#fff' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-                        <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: 8, borderRadius: 8 }}><Info size={20} color="#3b82f6" /></div>
-                        <h3 style={{ margin: 0, fontSize: '0.9rem', color: '#999' }}>DATA OPTIMIZATION</h3>
-                    </div>
-                    <p style={{ fontSize: '0.85rem', color: '#bbb', lineHeight: 1.6 }}>Modifying these weights affects the "Recommended Sports" logic in real-time. Use higher weights for attributes that are critical for elite performance in that discipline.</p>
-                </div>
-            </div> */}
-
             {/* ── Weights Tab ───────────────────────────────────────────── */}
             {activeTab === 'weights' && (
             <>
@@ -206,11 +207,11 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                     onClick={() => setShowAddForm(true)}
                     style={{ background: '#111', color: '#fff', border: '1px solid #333', padding: '12px 24px', borderRadius: 12, fontWeight: 700, cursor: 'pointer', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: 10 }}
                 >
-                    <Plus size={18} /> ADD NEW SPORT PROFILE
+                    <Plus size={18} /> ADD NEW SPORT WEIGHT
                 </button>
             ) : (
                 <div className={styles.addSportCard}>
-                    <h3 style={{ margin: '0 0 1.5rem', color: '#AAFF00' }}>CREATE NEW SPORT PROFILE</h3>
+                    <h3 style={{ margin: '0 0 1.5rem', color: '#AAFF00' }}>CREATE NEW SPORT WEIGHT</h3>
                     <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
                         <div style={{ flex: 1, minWidth: '200px' }}>
                             <label className={styles.label} style={{ color: '#aaa' }}>Sport Name</label>
@@ -223,7 +224,7 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                             />
                         </div>
                         <div style={{ display: 'flex', gap: '10px' }}>
-                            <button onClick={handleAddSport} style={{ background: '#AAFF00', color: '#000', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 800, cursor: 'pointer' }}>CREATE SPORT</button>
+                            <button onClick={handleAddSport} style={{ background: '#AAFF00', color: '#000', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 800, cursor: 'pointer' }}>CREATE SPORT WEIGHT</button>
                             <button onClick={() => setShowAddForm(false)} style={{ background: 'transparent', color: '#666', border: '1px solid #333', padding: '10px 20px', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>CANCEL</button>
                         </div>
                     </div>
@@ -265,9 +266,7 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
 
                             return (
                                 <tr key={config.name} className={styles.weightRow}>
-                                    <td style={{ fontWeight: 800, color: '#fff' }}>
-                                        {config.name}
-                                    </td>
+                                    <td style={{ fontWeight: 800, color: '#fff' }}>{config.name}</td>
                                     <td style={{ textAlign: 'center' }}><input type="number" className={styles.weightInput} value={config.weights.speed} onChange={e => updateWeight(config.name, 'speed', e.target.value)} /></td>
                                     <td style={{ textAlign: 'center' }}><input type="number" className={styles.weightInput} value={config.weights.agility} onChange={e => updateWeight(config.name, 'agility', e.target.value)} /></td>
                                     <td style={{ textAlign: 'center' }}><input type="number" className={styles.weightInput} value={config.weights.power} onChange={e => updateWeight(config.name, 'power', e.target.value)} /></td>
@@ -295,24 +294,42 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
             </>
             )}
 
-            {/* ── Sport Profiles Tab ─────────────────────────────────────── */}
+            {/* ── Sport Profiles Tab (Anchors) ───────────────────────────── */}
             {activeTab === 'profiles' && (
             <div>
-                {/* Explainer */}
-                <div style={{ background: 'rgba(170,255,0,0.05)', border: '1px solid rgba(170,255,0,0.15)', borderRadius: 12, padding: '1rem 1.5rem', marginBottom: '1.5rem', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                    <Info size={18} color='#AAFF00' style={{ flexShrink: 0, marginTop: 2 }} />
-                    <div style={{ fontSize: '0.85rem', color: '#bbb', lineHeight: 1.7 }}>
-                        <strong style={{ color: '#AAFF00' }}>Height & Weight</strong> — Set the <em>Age-14 Male baseline</em> (cm / kg).
-                        The engine auto-scales other ages (±2.5%/yr from 14) and Female (×0.91).<br />
-                        <strong style={{ color: '#AAFF00' }}>Multipliers</strong> — Applied to Basketball baseline percentiles.
-                        <span style={{ color: '#AAFF00' }}>&gt;1</span> raises the bar for that metric; <span style={{ color: '#f97316' }}>&lt;1</span> lowers it.
-                        For <em>inverse</em> metrics (sprint, t-test, reaction) a lower multiplier means <em>faster/better</em> is required.
+                {!showAddProfileForm ? (
+                    <button
+                        onClick={() => setShowAddProfileForm(true)}
+                        style={{ background: '#111', color: '#fff', border: '1px solid #333', padding: '12px 24px', borderRadius: 12, fontWeight: 700, cursor: 'pointer', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: 10 }}
+                    >
+                        <Plus size={18} /> ADD NEW SPORT PROFILE
+                    </button>
+                ) : (
+                    <div className={styles.addSportCard} style={{ marginBottom: '2rem' }}>
+                        <h3 style={{ margin: '0 0 1.5rem', color: '#AAFF00' }}>CREATE NEW SPORT PROFILE</h3>
+                        <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+                            <div style={{ flex: 1, minWidth: '200px' }}>
+                                <label className={styles.label} style={{ color: '#aaa' }}>Sport Name</label>
+                                <input
+                                    className={styles.input}
+                                    style={{ background: '#222', border: '1px solid #444', color: '#fff' }}
+                                    value={newProfileSport.name}
+                                    onChange={e => setNewProfileSport(prev => ({ ...prev, name: e.target.value }))}
+                                    placeholder="e.g. Rugby"
+                                />
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <button onClick={handleAddSportProfileSubmit} style={{ background: '#AAFF00', color: '#000', border: 'none', padding: '10px 20px', borderRadius: 8, fontWeight: 800, cursor: 'pointer' }}>CREATE PROFILE</button>
+                                <button onClick={() => setShowAddProfileForm(false)} style={{ background: 'transparent', color: '#666', border: '1px solid #333', padding: '10px 20px', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>CANCEL</button>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                )}
 
-                {/* Search */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
-                    <h2 style={{ fontSize: '1.25rem', margin: 0, fontWeight: 800 }}>SPORT NORMATIVE PROFILES</h2>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                    <div style={{ display: 'flex', gap: 15, alignItems: 'center' }}>
+                        <h2 style={{ fontSize: '1.25rem', margin: 0, fontWeight: 800 }}>AGE 14 BASELINE ANCHORS (p10-p90)</h2>
+                    </div>
                     <input className={styles.input}
                         style={{ width: '260px', background: 'rgba(255,255,255,0.05)', border: '1px solid #333', color: '#fff' }}
                         placeholder='Search sports...'
@@ -321,13 +338,20 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                     />
                 </div>
 
-                {/* Accordion cards */}
+                <div style={{ background: 'rgba(170,255,0,0.05)', border: '1px solid rgba(170,255,0,0.15)', borderRadius: 12, padding: '1rem 1.5rem', marginBottom: '1.5rem', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                    <Info size={18} color='#AAFF00' style={{ flexShrink: 0, marginTop: 2 }} />
+                    <div style={{ fontSize: '0.85rem', color: '#bbb', lineHeight: 1.7 }}>
+                        Edit the direct un-multiplied perfection standard (Age 14) for any sport. The system automatically calculates 10-16 growth targets using these explicit base numbers. Any modifications here are immediately saved into browser memory ensuring your custom datasets override defaults. All new sports added get generated automatically within the Assessment Engine.
+                    </div>
+                </div>
+
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                     {filteredProfiles.map(sport => {
                         const p = profiles[sport];
                         const modified = isModified(sport);
                         const open = expandedSport === sport;
                         if (!p) return null;
+                        
                         return (
                             <div key={sport} style={{ background: '#111', border: `1px solid ${modified ? 'rgba(170,255,0,0.25)' : '#222'}`, borderRadius: 14, overflow: 'hidden', transition: 'border 0.2s' }}>
                                 {/* Header row */}
@@ -345,54 +369,47 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
 
                                 {/* Expanded editor */}
                                 {open && (
-                                    <div style={{ padding: '0 1.2rem 1.2rem', borderTop: '1px solid #1e1e1e' }}>
-                                        {/* Height + Weight section */}
-                                        <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
-                                            <p style={{ margin: '0 0 0.6rem', fontSize: '0.75rem', color: '#666', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>Height & Weight — Age 14, Male Baseline</p>
-                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem' }}>
-                                                {([
-                                                    { field: 'heightP50' as const, label: 'Height Median (cm)', hint: 'p50' },
-                                                    { field: 'heightP90' as const, label: 'Height Elite (cm)',   hint: 'p90' },
-                                                    { field: 'weightP50' as const, label: 'Weight Median (kg)', hint: 'p50' },
-                                                    { field: 'weightP90' as const, label: 'Weight Elite (kg)',  hint: 'p90' },
-                                                ]).map(({ field, label, hint }) => (
-                                                    <div key={field}>
-                                                        <label style={{ fontSize: '0.72rem', color: '#555', display: 'block', marginBottom: 4, fontWeight: 700 }}>
-                                                            {label} <span style={{ color: '#333' }}>({hint})</span>
-                                                        </label>
-                                                        <input type='number' step='1'
-                                                            style={{ width: '100%', background: '#1a1a1a', border: '1px solid #333', color: '#fff', padding: '6px 10px', borderRadius: 8, fontSize: '0.9rem', fontWeight: 700 }}
-                                                            value={p[field]}
-                                                            onChange={e => updateProfile(sport, field, e.target.value)}
-                                                        />
-                                                    </div>
-                                                ))}
-                                            </div>
+                                    <div style={{ padding: '1rem 1.2rem 1.5rem', borderTop: '1px solid #1e1e1e', overflowX: 'auto' }}>
+                                        <div style={{ display: 'flex', gap: 10, marginBottom: 15 }}>
+                                            <button onClick={(e) => { e.stopPropagation(); setSelectedGender('Male'); }} style={{ background: selectedGender === 'Male' ? '#22c55e' : '#222', color: selectedGender === 'Male' ? '#000' : '#fff', border: 'none', padding: '6px 16px', borderRadius: 20, fontWeight: 700, cursor: 'pointer' }}>MALE</button>
+                                            <button onClick={(e) => { e.stopPropagation(); setSelectedGender('Female'); }} style={{ background: selectedGender === 'Female' ? '#a855f7' : '#222', color: selectedGender === 'Female' ? '#fff' : '#fff', border: 'none', padding: '6px 16px', borderRadius: 20, fontWeight: 700, cursor: 'pointer' }}>FEMALE</button>
                                         </div>
-
-                                        {/* Multipliers section */}
-                                        <div>
-                                            <p style={{ margin: '0 0 0.6rem', fontSize: '0.75rem', color: '#666', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>Performance Multipliers (relative to Basketball baseline)</p>
-                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
-                                                {MULTIPLIER_FIELDS.map(({ key, label, tooltip, inverse }) => {
-                                                    const val = p[key] as number;
-                                                    const col = multColor(val, inverse);
+                                        
+                                        <table className={styles.weightTable} style={{ minWidth: 600, background: 'rgba(0,0,0,0.2)' }}>
+                                            <thead>
+                                                <tr>
+                                                    <th style={{ textAlign: 'left', width: 140, color: '#888', borderBottom: '1px solid #333' }}>METRIC</th>
+                                                    {PERCENTILES.map(pName => <th key={pName} style={{ textAlign: 'center', color: '#888', borderBottom: '1px solid #333' }}>{pName.toUpperCase()}</th>)}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {METRIC_KEYS.map(metric => {
+                                                    // Ensure data exists because we might have added a new metric that wasn't in an old save
+                                                    if (!p[selectedGender]) (p as any)[selectedGender] = {};
+                                                    if (!p[selectedGender][metric]) (p[selectedGender] as any)[metric] = { p10:0, p25:0, p50:0, p75:0, p90:0 };
+                                                    
                                                     return (
-                                                        <div key={key} title={tooltip}>
-                                                            <label style={{ fontSize: '0.72rem', color: '#555', display: 'flex', justifyContent: 'space-between', marginBottom: 4, fontWeight: 700 }}>
-                                                                <span>{label}{inverse ? <span style={{ color: '#444', fontWeight: 400, marginLeft: 4 }}>(inverse)</span> : null}</span>
-                                                                <span style={{ color: col, fontWeight: 900 }}>{val.toFixed(2)}×</span>
-                                                            </label>
-                                                            <input type='number' step='0.01' min='0.3' max='2.5'
-                                                                style={{ width: '100%', background: '#1a1a1a', border: `1px solid ${col}44`, color: col, padding: '6px 10px', borderRadius: 8, fontSize: '0.9rem', fontWeight: 700 }}
-                                                                value={val}
-                                                                onChange={e => updateProfile(sport, key, e.target.value)}
-                                                            />
-                                                        </div>
-                                                    );
+                                                        <tr key={metric} className={styles.weightRow}>
+                                                            <td style={{ fontWeight: 700, color: '#aaa', fontSize: '0.75rem', textTransform: 'uppercase' }}>{metric}</td>
+                                                            {PERCENTILES.map(pString => {
+                                                                const val = (p[selectedGender] as any)[metric][pString];
+                                                                return (
+                                                                    <td key={pString} style={{ textAlign: 'center' }}>
+                                                                        <input 
+                                                                            type="number" 
+                                                                            step="0.1"
+                                                                            style={{ width: '60px', background: '#1a1a1a', border: '1px solid #333', color: '#fff', padding: '6px 8px', borderRadius: 6, textAlign: 'center', fontSize: '0.85rem' }}
+                                                                            value={val === undefined ? 0 : val}
+                                                                            onChange={e => updateProfileMetric(sport, selectedGender, metric, pString, e.target.value)}
+                                                                        />
+                                                                    </td>
+                                                                )
+                                                            })}
+                                                        </tr>
+                                                    )
                                                 })}
-                                            </div>
-                                        </div>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 )}
                             </div>

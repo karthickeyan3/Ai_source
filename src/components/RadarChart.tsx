@@ -4,6 +4,9 @@ import type { MetricResult, Gender } from '../types';
 import { calculateMetricStats } from '../utils/percentileEngine';
 import styles from '../App.module.css';
 
+// ── Toggle this to show/hide the comparison table globally ──
+export const SHOW_COMPARISON_TABLE = true;
+
 interface RadarChartProps {
     metrics: MetricResult[];
     age: number;
@@ -167,6 +170,54 @@ export const PerformanceRadar = ({ metrics, age, gender, sport = 'Basketball' }:
                     </span>
                 </div>
             </div>
+
+            {/* Simple Elite vs You Table */}
+            {SHOW_COMPARISON_TABLE && (
+                <div style={{ padding: '0 20px 30px' }}>
+                    <div style={{
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        overflow: 'hidden'
+                    }}>
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: '1.5fr 1fr 1fr',
+                            background: '#f9fafb',
+                            padding: '10px 16px',
+                            borderBottom: '2px solid #e5e7eb',
+                            fontSize: '0.65rem',
+                            fontWeight: 800,
+                            color: '#6b7280',
+                            textTransform: 'uppercase',
+                            letterSpacing: '1px'
+                        }}>
+                            <span>Metric</span>
+                            <span style={{ textAlign: 'center', color: '#16a34a' }}>Elite</span>
+                            <span style={{ textAlign: 'center', color: '#111827' }}>You</span>
+                        </div>
+                        {radarData.map((d, i) => (
+                            <div key={i} style={{
+                                display: 'grid',
+                                gridTemplateColumns: '1.5fr 1fr 1fr',
+                                padding: '10px 16px',
+                                borderBottom: i < radarData.length - 1 ? '1px solid #f3f4f6' : 'none',
+                                background: i % 2 === 0 ? '#fff' : '#fafbfc',
+                                alignItems: 'center'
+                            }}>
+                                <span style={{ fontWeight: 800, color: '#1f2937', fontSize: '0.75rem' }}>
+                                    {d.subject}
+                                </span>
+                                <span style={{ textAlign: 'center', fontWeight: 900, color: '#16a34a', fontSize: '0.85rem' }}>
+                                    {d.rawElite} <span style={{ fontSize: '0.65rem', color: '#86efac', fontWeight: 700 }}>{d.unit}</span>
+                                </span>
+                                <span style={{ textAlign: 'center', fontWeight: 900, color: '#111827', fontSize: '0.85rem' }}>
+                                    {d.rawAthlete} <span style={{ fontSize: '0.65rem', color: '#9ca3af', fontWeight: 700 }}>{d.unit}</span>
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

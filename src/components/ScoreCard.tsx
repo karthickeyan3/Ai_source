@@ -104,20 +104,28 @@ export const ScoreCard = ({ result, onSportSelect }: ScoreCardProps) => {
                                 }}
                                 style={{
                                     flex: 1,
-                                    padding: '10px 6px',
+                                    padding: '8px 4px',
                                     border: 'none',
                                     borderRadius: '8px',
-                                    fontSize: '0.85rem',
+                                    fontSize: '0.75rem',
                                     fontWeight: 900,
                                     cursor: 'pointer',
                                     background: activeTab === i ? '#111827' : 'transparent',
                                     color: activeTab === i ? '#AAFF00' : '#6b7280',
                                     transition: 'all 0.2s',
-                                    textTransform: 'uppercase'
+                                    textTransform: 'uppercase',
+                                    lineHeight: 1.3,
+                                    whiteSpace: 'pre-line',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    textAlign: 'center',
+                                    wordBreak: 'break-word',
+                                    minHeight: '48px'
                                 }}
                             >
                                 {s.sport.includes(' - ') 
-                                    ? s.sport.split(' - ')[1].replace('Jumps ', '').replace(' (', '').replace(')', '')
+                                    ? s.sport.split(' - ')[1].replace('Jumps ', '').replace(' (', '\n').replace(')', '')
                                     : s.sport.split(' ')[0]}
                             </button>
                         ))}

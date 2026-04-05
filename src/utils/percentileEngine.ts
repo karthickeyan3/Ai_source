@@ -60,8 +60,7 @@ export const calculateMetricStats = (
     metricKey: string,
     sport: string,
     gender: Gender,
-    age: number,
-    forDisplay = false // true = table display (peer-relative, no sport inversion on body metrics)
+    age: number
 ): { percentile: number, zScore: number, eliteValue: number } => {
     /**
      * FORMULA from Trial1.rtf:
@@ -76,13 +75,10 @@ export const calculateMetricStats = (
     const isStructural = ['height', 'weight', 'bmi', 'shoulderGirth', 'hipCircumference',
         'waistCircumference', 'hipToToe', 'skinfold'].includes(metricKey);
 
-    // NOT when displaying peer-relative percentiles in the rankings table.
-    if (!forDisplay) {
-        const enduranceSports = ['distance', 'rowing', 'cycling', 'marathon', 'cross country'];
-        const isEndurance = enduranceSports.some(term => sport.toLowerCase().includes(term));
-        if (isEndurance && (metricKey === 'bmi' || metricKey === 'weight')) {
-            isInverse = true;
-        }
+    const enduranceSports = ['distance', 'rowing', 'cycling', 'marathon', 'cross country'];
+    const isEndurance = enduranceSports.some(term => sport.toLowerCase().includes(term));
+    if (isEndurance && (metricKey === 'bmi' || metricKey === 'weight')) {
+        isInverse = true;
     }
 
     const ageDiff = 12 - age;
@@ -107,14 +103,17 @@ export const calculateMetricStats = (
 
     if (!norms) return { percentile: 50, zScore: 0, eliteValue: 0 };
 
+    // Detect if data is stored Descending (p10 > p90) or Ascending (p10 < p90)
+    const dataIsDescending = norms.p10 > norms.p90;
+
     const bps = [
-        { p: 0, v: isInverse ? norms.p10 * 1.5 : norms.p10 * 0.5 },
+        { p: 0, v: dataIsDescending ? norms.p10 * 1.5 : norms.p10 * 0.5 },
         { p: 10, v: norms.p10 },
         { p: 25, v: norms.p25 },
         { p: 50, v: norms.p50 },
         { p: 75, v: norms.p75 },
         { p: 90, v: norms.p90 },
-        { p: 100, v: isInverse ? norms.p90 * 0.5 : norms.p90 * 1.5 },
+        { p: 100, v: dataIsDescending ? norms.p90 * 0.5 : norms.p90 * 1.5 },
     ];
 
     let percentile = 50;
@@ -123,29 +122,34 @@ export const calculateMetricStats = (
         const low = bps[i];
         const high = bps[i + 1];
 
-        if (isInverse) {
-            if (adjustedValue <= low.v && adjustedValue >= high.v) {
-                const ratio = (adjustedValue - low.v) / (high.v - low.v);
-                percentile = low.p + ratio * (high.p - low.p);
-                found = true;
-                break;
-            }
-        } else {
-            if (adjustedValue >= low.v && adjustedValue <= high.v) {
-                const ratio = (adjustedValue - low.v) / (high.v - low.v);
-                percentile = low.p + ratio * (high.p - low.p);
-                found = true;
-                break;
-            }
+        // Robust order-agnostic interval check
+        const vMin = Math.min(low.v, high.v);
+        const vMax = Math.max(low.v, high.v);
+
+        if (adjustedValue >= vMin && adjustedValue <= vMax) {
+            // Percentile interpolation
+            const ratio = (low.v === high.v) ? 0 : (adjustedValue - low.v) / (high.v - low.v);
+            percentile = low.p + ratio * (high.p - low.p);
+            found = true;
+            break;
         }
     }
 
     if (!found) {
-        if (isInverse) {
-            percentile = adjustedValue < bps[bps.length - 1].v ? 100 : 0;
+        const first = bps[0];
+        const last = bps[bps.length - 1];
+        if (dataIsDescending) {
+            percentile = adjustedValue >= first.v ? 0 : (adjustedValue <= last.v ? 100 : 50);
         } else {
-            percentile = adjustedValue > bps[bps.length - 1].v ? 100 : 0;
+            percentile = adjustedValue <= first.v ? 0 : (adjustedValue >= last.v ? 100 : 50);
         }
+    }
+
+    // CRITICAL: If metric is inverse BUT data is stored ascending (e.g. BMI, Weight in endurance), 
+    // the calculated percentile must be inverted to reflect "lower = better".
+    // If data is already stored descending (e.g. tTest, Sprint), no inversion is needed as raw percentile is correct.
+    if (isInverse && !dataIsDescending) {
+        percentile = 100 - percentile;
     }
 
     // zScore using adjusted value
@@ -154,12 +158,10 @@ export const calculateMetricStats = (
     if (isInverse) zScore = -zScore;
 
     // eliteValue is the "best" value peers can achieve:
-    // - BMI: stored LOW→HIGH (p10=leanest=14.0, p90=heaviest=23.0) → elite = norms.p10 (leanest)
-    // - All other inverse metrics (sprint, tTest, reactionTime, responseTime, waist, skinfold):
-    //   stored HIGH→LOW (p10=worst, p90=fastest/smallest=best) → elite = norms.p90
-    // - Normal metrics (verticalJump, plankTest, sitAndReach, etc.):
-    //   stored LOW→HIGH (p90=biggest=best) → elite = norms.p90
-    const eliteValue = metricKey === 'bmi' ? norms.p10 : norms.p90;
+    // Correctly handles both inverted and direct data ordering
+    const eliteValue = isInverse
+        ? (dataIsDescending ? norms.p90 : norms.p10)
+        : (dataIsDescending ? norms.p10 : norms.p90);
     return { percentile, zScore, eliteValue };
 };
 
@@ -238,29 +240,39 @@ const getTalentId = (metrics: MetricResult[], bodyComp: BodyCompAnalysis, data: 
 export const calculateDerivedAttributes = (data: Record<string, number>, gender: Gender, age: number, referenceSport: string): Record<string, number> => {
     // NOTE: calculateMetricStats already inverts INVERSE_METRICS internally,
     // so the returned percentile is always "higher = better". Do NOT subtract from 100.
+    //
+    // ZERO-SHARING DESIGN: Each raw metric feeds EXACTLY ONE derived attribute.
+    // This prevents any single metric from inflating multiple sports' scores.
+    //
+    // Metric → Attribute mapping (strict 1:1):
+    //   sprint40m     → speed      (100%)
+    //   tTest         → agility    (60%)
+    //   responseTime  → agility    (40%)
+    //   verticalJump  → power      (60%)
+    //   reactionTime  → power      (40%)
+    //   plankTest     → endurance  (100%)
+    //   shoulderGirth → strength   (100%)
+    //   sitAndReach   → flexibility(100%)
+    //   hipToToe      → jumping    (100%)  [leg length = structural jumping predictor]
+
     const speed = calculateMetricStats(data.sprint40m || 0, 'sprint40m', referenceSport, gender, age).percentile;
 
     const agility = (
-        calculateMetricStats(data.tTest || 0, 'tTest', referenceSport, gender, age).percentile * 0.7 +
-        calculateMetricStats(data.responseTime || 0, 'responseTime', referenceSport, gender, age).percentile * 0.3
+        calculateMetricStats(data.tTest || 0, 'tTest', referenceSport, gender, age).percentile * 0.6 +
+        calculateMetricStats(data.responseTime || 0, 'responseTime', referenceSport, gender, age).percentile * 0.4
     );
 
     const power = (
-        calculateMetricStats(data.verticalJump || 0, 'verticalJump', referenceSport, gender, age).percentile * 0.8 +
-        calculateMetricStats(data.reactionTime || 0, 'reactionTime', referenceSport, gender, age).percentile * 0.2
+        calculateMetricStats(data.verticalJump || 0, 'verticalJump', referenceSport, gender, age).percentile * 0.6 +
+        calculateMetricStats(data.reactionTime || 0, 'reactionTime', referenceSport, gender, age).percentile * 0.4
     );
 
     const endurance = calculateMetricStats(data.plankTest || 0, 'plankTest', referenceSport, gender, age).percentile;
-
-    const shoulderStats = calculateMetricStats(data.shoulderGirth || 0, 'shoulderGirth', referenceSport, gender, age).percentile;
-    const strength = (endurance * 0.5) + (shoulderStats * 0.5);
-
+    const strength = calculateMetricStats(data.shoulderGirth || 0, 'shoulderGirth', referenceSport, gender, age).percentile;
     const flexibility = calculateMetricStats(data.sitAndReach || 0, 'sitAndReach', referenceSport, gender, age).percentile;
-    const jumping = calculateMetricStats(data.verticalJump || 0, 'verticalJump', referenceSport, gender, age).percentile;
+    const jumping = calculateMetricStats(data.hipToToe || 0, 'hipToToe', referenceSport, gender, age).percentile;
 
-    return {
-        speed, agility, power, endurance, strength, flexibility, jumping
-    };
+    return { speed, agility, power, endurance, strength, flexibility, jumping };
 };
 
 const getSportRecommendations = (data: FormData): { recommendations: RecommendedSport[], attributes: Record<string, number> } => {
@@ -269,7 +281,7 @@ const getSportRecommendations = (data: FormData): { recommendations: Recommended
 
     const sportConfigs = getSportWeights();
     const recommendations: RecommendedSport[] = [];
-       // 1. Multiply Attribute % by Sport Weight
+    // 1. Multiply Attribute % by Sport Weight
     // The mathematical loop inside getSportRecommendations()
     Object.entries(sportConfigs).forEach(([name, config]) => {
         let matchScore = 0;
@@ -283,7 +295,7 @@ const getSportRecommendations = (data: FormData): { recommendations: Recommended
 
         // FORMULA from Trial1.rtf Step 3 & 4:
         // matchScore = Σ(Attribute% × Weight) / totalWeight
-    // 2. Sum / TotalWeight (which is 100) -> Gives the % match
+        // 2. Sum / TotalWeight (which is 100) -> Gives the % match
         matchScore = totalWeight > 0 ? matchScore / totalWeight : 0;
 
         recommendations.push({
@@ -321,7 +333,7 @@ export const runAssessment = (data: FormData): AssessmentResult => {
     const results: MetricResult[] = metricsList.map(m => {
         const val = (dataWithBmi as unknown as Record<string, unknown>)[m.key] as number;
         // forDisplay=true: structural metrics use peer-relative age norms, no sport inversion
-        const stats = calculateMetricStats(val, m.key, primarySport, data.gender, age, true);
+        const stats = calculateMetricStats(val, m.key, primarySport, data.gender, age);
         return {
             metric: m.label,
             value: val,

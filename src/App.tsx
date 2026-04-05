@@ -120,7 +120,7 @@ function App() {
               color: '#374151',
             }}
           >
-            <ChevronLeft size={14} /> HOME
+            <ChevronLeft size={14} /> LOGOUT
           </button>
           <div className={styles.logo}>
             <span>SRS</span> Analytics
@@ -308,3 +308,4 @@ function App() {
 }
 
 export default App
+

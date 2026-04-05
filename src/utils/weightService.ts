@@ -32,7 +32,7 @@ const DEFAULT_WEIGHTS: Record<string, SportConfig> = {
     },
     'Swimming - Sprint (50m/100m)': {
         name: 'Swimming - Sprint (50m/100m)',
-        weights: { speed: 20, agility: 10, power: 20, endurance: 15, strength: 15, flexibility: 10, jumping: 10 }
+        weights: { speed: 25, agility: 10, power: 25, endurance: 15, strength: 15, flexibility: 10, jumping: 0 }
     },
     'Swimming - Distance (400m/1500m)': {
         name: 'Swimming - Distance (400m/1500m)',
@@ -40,27 +40,27 @@ const DEFAULT_WEIGHTS: Record<string, SportConfig> = {
     },
     'Track & Field - Sprint (100m/200m)': {
         name: 'Track & Field - Sprint (100m/200m)',
-        weights: { speed: 25, agility: 15, power: 20, endurance: 10, strength: 10, flexibility: 5, jumping: 15 }
+        weights: { speed: 30, agility: 10, power: 25, endurance: 5, strength: 10, flexibility: 10, jumping: 10 }
     },
     'Track & Field - Middle Distance (800m/1500m)': {
         name: 'Track & Field - Middle Distance (800m/1500m)',
-        weights: { speed: 15, agility: 10, power: 15, endurance: 30, strength: 10, flexibility: 5, jumping: 15 }
+        weights: { speed: 15, agility: 10, power: 15, endurance: 30, strength: 10, flexibility: 10, jumping: 10 }
     },
     'Track & Field - Long Distance (5K/10K)': {
         name: 'Track & Field - Long Distance (5K/10K)',
-        weights: { speed: 10, agility: 10, power: 10, endurance: 40, strength: 15, flexibility: 5, jumping: 10 }
+        weights: { speed: 10, agility: 10, power: 10, endurance: 30, strength: 15, flexibility: 15, jumping: 10 }
     },
     'Track & Field - Jumps (High)': {
         name: 'Track & Field - Jumps (High)',
-        weights: { speed: 10, agility: 5, power: 25, endurance: 0, strength: 0, flexibility: 15, jumping: 45 }
+        weights: { speed: 10, agility: 10, power: 25, endurance: 5, strength: 10, flexibility: 15, jumping: 25 }
     },
     'Track & Field - Jumps (Long)': {
         name: 'Track & Field - Jumps (Long)',
-        weights: { speed: 25, agility: 5, power: 25, endurance: 0, strength: 0, flexibility: 0, jumping: 45 }
+        weights: { speed: 25, agility: 10, power: 25, endurance: 5, strength: 10, flexibility: 5, jumping: 20 }
     },
     'Track & Field - Jumps (Triple)': {
         name: 'Track & Field - Jumps (Triple)',
-        weights: { speed: 22, agility: 5, power: 25, endurance: 0, strength: 3, flexibility: 0, jumping: 45 }
+        weights: { speed: 20, agility: 10, power: 25, endurance: 5, strength: 15, flexibility: 5, jumping: 20 }
     },
     'Track & Field - Throws (Shot/Discus/Javelin)': {
         name: 'Track & Field - Throws (Shot/Discus/Javelin)',
@@ -113,6 +113,18 @@ export const getSportWeights = (): Record<string, SportConfig> => {
             if (key.includes('Jumps') && key.includes('/')) {
                 delete parsed[key];
                 modified = true;
+            }
+        });
+
+        // 3. Clear out cached biased weights (legacy concentrated profiles)
+        Object.keys(parsed).forEach(key => {
+            if (parsed[key]?.weights) {
+                const w = parsed[key].weights;
+                // Flush any profile where a single attribute exceeds the 30% cap
+                if (w.jumping === 45 || w.endurance === 0 || w.endurance === 40 || w.speed === 35) {
+                    delete parsed[key];
+                    modified = true;
+                }
             }
         });
 
