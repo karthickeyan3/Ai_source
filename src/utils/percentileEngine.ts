@@ -60,7 +60,8 @@ export const calculateMetricStats = (
     metricKey: string,
     sport: string,
     gender: Gender,
-    age: number
+    age: number,
+    forDisplay: boolean = false
 ): { percentile: number, zScore: number, eliteValue: number } => {
     /**
      * FORMULA from Trial1.rtf:
@@ -77,7 +78,7 @@ export const calculateMetricStats = (
 
     const enduranceSports = ['distance', 'rowing', 'cycling', 'marathon', 'cross country'];
     const isEndurance = enduranceSports.some(term => sport.toLowerCase().includes(term));
-    if (isEndurance && (metricKey === 'bmi' || metricKey === 'weight')) {
+    if (isEndurance && (metricKey === 'bmi' || metricKey === 'weight') && !forDisplay) {
         isInverse = true;
     }
 
@@ -96,9 +97,9 @@ export const calculateMetricStats = (
     const allNorms = getNormativeData();
     const parentSport = resolveParentSport(sport);
 
-    // Structural metrics: compare against child's actual age group (peer-relative)
-    // Performance metrics: compare against Age-12 baseline table (after AAF adjustment)
-    const lookupAge = isStructural ? getAgeGroup(age).toString() : baselineAge;
+    // Structural metrics (or forDisplay mode): compare against child's actual age group (peer-relative)
+    // Performance metrics (standard): compare against Age-12 baseline table (after AAF adjustment)
+    const lookupAge = (isStructural || forDisplay) ? getAgeGroup(age).toString() : baselineAge;
     const norms = allNorms[parentSport]?.[gender]?.[lookupAge]?.[metricKey];
 
     if (!norms) return { percentile: 50, zScore: 0, eliteValue: 0 };
