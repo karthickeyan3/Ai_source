@@ -50,16 +50,16 @@ const DEFAULT_WEIGHTS: Record<string, SportConfig> = {
         name: 'Track & Field - Long Distance (5K/10K)',
         weights: { speed: 10, agility: 10, power: 10, endurance: 30, strength: 15, flexibility: 15, jumping: 10 }
     },
-    'Track & Field - Jumps (High)': {
-        name: 'Track & Field - Jumps (High)',
+    'Track & Field - High Jump': {
+        name: 'Track & Field - High Jump',
         weights: { speed: 10, agility: 10, power: 25, endurance: 5, strength: 10, flexibility: 15, jumping: 25 }
     },
-    'Track & Field - Jumps (Long)': {
-        name: 'Track & Field - Jumps (Long)',
+    'Track & Field - Long Jump': {
+        name: 'Track & Field - Long Jump',
         weights: { speed: 25, agility: 10, power: 25, endurance: 5, strength: 10, flexibility: 5, jumping: 20 }
     },
-    'Track & Field - Jumps (Triple)': {
-        name: 'Track & Field - Jumps (Triple)',
+    'Track & Field - Triple Jump': {
+        name: 'Track & Field - Triple Jump',
         weights: { speed: 20, agility: 10, power: 25, endurance: 5, strength: 15, flexibility: 5, jumping: 20 }
     },
     'Track & Field - Throws (Shot/Discus/Javelin)': {

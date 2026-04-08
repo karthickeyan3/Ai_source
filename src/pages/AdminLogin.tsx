@@ -16,12 +16,12 @@ export const AdminLogin = ({ onLoginSuccess }: AdminLoginProps) => {
 
     const handleCredentialsSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Dummy check: admin@sras.com / admin123
-        if (email === 'admin@srs.com' && password === 'admin123') {
+
+        if (email === 'srs2026@secure' && password === 'admin123') {
             setError('');
             setStep('otp');
         } else {
-            setError('Invalid email or password. Hint: admin@srs.com / admin123');
+            setError('Invalid email or password.');
         }
     };
 
@@ -90,7 +90,7 @@ export const AdminLogin = ({ onLoginSuccess }: AdminLoginProps) => {
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                placeholder="admin@srs.com"
+                                placeholder="Email"
                                 required
                             />
                         </div>

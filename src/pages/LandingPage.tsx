@@ -97,7 +97,9 @@ export const LandingPage = ({ onStart }: LandingPageProps) => {
                     .lp-stats { justify-content: center; gap: 20px !important; }
                     .lp-footer { flex-direction: column; text-align: center; gap: 1.5rem !important; padding: 2rem 1rem !important; }
                     .lp-footer-right { flex-direction: column; gap: 1rem !important; }
+                    .lp-section-grid { grid-template-columns: 1fr !important; }
                 }
+
             `}</style>
 
             {/* ── MARQUEE SPORTS TICKER ──────────────────────────── */}
@@ -298,11 +300,11 @@ export const LandingPage = ({ onStart }: LandingPageProps) => {
                 borderTop: '1px solid rgba(255,255,255,0.05)',
                 position: 'relative',
             }}>
-                <div style={{
+                <div className="lp-section-grid" style={{
                     maxWidth: 1300,
                     margin: '0 auto',
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
                     gap: 'clamp(2rem, 4vw, 4rem)',
                     alignItems: 'flex-start'
                 }}>

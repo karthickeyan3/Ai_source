@@ -11,7 +11,9 @@ import { AdminDashboard } from './pages/AdminDashboard'
 import { AdminLogin } from './pages/AdminLogin'
 import { UserLogin } from './pages/UserLogin'
 import styles from './App.module.css'
-import { Activity, Users, Download, ChevronLeft, Filter, Lock } from 'lucide-react'
+import { Activity, Users, Download, ChevronLeft, Filter, FileDown } from 'lucide-react'
+import { exportToPDF } from './utils/reportExporter'
+
 
 type AppView = 'landing' | 'assessment' | 'dashboard' | 'bulk' | 'admin';
 
@@ -24,6 +26,7 @@ function App() {
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false)
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false)
   const [activeSport, setActiveSport] = useState<Sport | null>(null)
+  const [previousView, setPreviousView] = useState<AppView>('landing')
 
   const handleSportSelect = useCallback((sport: string) => {
     setActiveSport(sport as Sport);
@@ -33,12 +36,23 @@ function App() {
     const result = runAssessment(data);
     setAssessmentResult(result);
     setActiveSport(null);
+    setPreviousView('assessment');
     setAppView('dashboard');
   };
 
   const handleBulkResults = (results: AssessmentResult[]) => {
     setBulkResults(results);
+    setAssessmentResult(null); // Clear single report when new bulk upload happens
     setAppView('bulk');
+  };
+
+  const handleLogout = () => {
+    setAppView('landing');
+    setIsUserLoggedIn(false);
+    setIsAdminLoggedIn(false);
+    setAssessmentResult(null);
+    setBulkResults([]);
+    setActiveSport(null);
   };
   const filteredBulkResults = useMemo(() => {
     return bulkResults
@@ -97,31 +111,26 @@ function App() {
     <div className={styles.app}>
       <header className={styles.header}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button
-            onClick={() => {
-              setAppView('landing');
-              setIsUserLoggedIn(false);
-              setIsAdminLoggedIn(false);
-              setAssessmentResult(null);
-              setBulkResults([]);
-              setActiveSport(null);
-            }}
-            style={{
-              background: 'transparent',
-              border: '1px solid #e5e7eb',
-              borderRadius: 6,
-              padding: '6px 12px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              fontSize: '0.75rem',
-              fontWeight: 700,
-              color: '#374151',
-            }}
-          >
-            <ChevronLeft size={14} /> LOGOUT
-          </button>
+          {appView === 'dashboard' && (
+            <button
+              onClick={() => setAppView(previousView)}
+              style={{
+                background: '#000000',
+                border: '1px solid #000000',
+                borderRadius: 6,
+                padding: '6px 12px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                color: '#ffffff',
+              }}
+            >
+              <ChevronLeft size={14} /> BACK
+            </button>
+          )}
           <div className={styles.logo}>
             <span>SRS</span> Analytics
           </div>
@@ -157,11 +166,22 @@ function App() {
               </>
             )}
             <button
-              className={`${styles.tab} ${appView === 'admin' ? styles.tabActive : ''}`}
-              onClick={() => setAppView('admin')}
-              style={{ padding: '8px 18px' }}
+              className={styles.tab}
+              onClick={handleLogout}
+              style={{
+                background: '#000000',
+                color: '#ffffff',
+                border: 'none',
+                padding: '8px 18px',
+                borderRadius: 8,
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                fontSize: '0.75rem'
+              }}
             >
-              <Lock size={13} strokeWidth={2.5} /> ADMIN
+              LOGOUT
             </button>
           </div>
         </div>
@@ -178,18 +198,34 @@ function App() {
 
         {appView === 'dashboard' && assessmentResult && isUserLoggedIn && (
           <div className={styles.resultsPanel}>
-            <ScoreCard result={assessmentResult} onSportSelect={handleSportSelect} />
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginBottom: '40px' }}>
-              <PerformanceRadar
-                metrics={assessmentResult.metrics}
-                age={assessmentResult.age}
-                gender={assessmentResult.gender}
-                sport={activeSport || assessmentResult.sport}
+            <div id="individual-report-content" style={{ padding: '4px' }}>
+              <ScoreCard
+                result={assessmentResult}
+                onSportSelect={handleSportSelect}
+                actions={
+                  <button
+                    onClick={() => exportToPDF('individual-report-content', assessmentResult.athleteName)}
+                    className={styles.pdfBtn}
+                    data-html2canvas-ignore="true"
+                    style={{ padding: '6px 12px', fontSize: '0.7rem' }}
+                  >
+                    <FileDown size={16} /> Export
+                  </button>
+                }
               />
-              <RankingsTable metrics={assessmentResult.metrics} />
+              <div className="report-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginBottom: '40px' }}>
+                <PerformanceRadar
+                  metrics={assessmentResult.metrics}
+                  age={assessmentResult.age}
+                  gender={assessmentResult.gender}
+                  sport={activeSport || assessmentResult.sport}
+                />
+                <RankingsTable metrics={assessmentResult.metrics} />
+              </div>
             </div>
           </div>
         )}
+
 
         {appView === 'bulk' && isUserLoggedIn && (
           <div className={styles.resultsPanel}>
@@ -255,24 +291,24 @@ function App() {
                     <table className={styles.table}>
                       <thead>
                         <tr>
-                          <th>RANK</th>
-                          <th>ATHLETE</th>
-                          <th>AGE</th>
-                          <th>RECOMMENDED SPORT</th>
-                          <th>OVERALL SCORE ↓</th>
-                          <th>RATING</th>
-                          <th>TOP STRENGTH</th>
+                          <th style={{ textAlign: 'center' }}>RANK</th>
+                          <th style={{ textAlign: 'center' }}>ATHLETE</th>
+                          <th style={{ textAlign: 'center' }}>AGE</th>
+                          <th style={{ textAlign: 'center' }}>RECOMMENDED SPORT</th>
+                          <th style={{ textAlign: 'center' }}>OVERALL SCORE ↓</th>
+                          <th style={{ textAlign: 'center' }}>RATING</th>
+                          <th style={{ textAlign: 'center' }}>TOP STRENGTH</th>
                         </tr>
                       </thead>
                       <tbody>
                         {filteredBulkResults.map((result: AssessmentResult, idx: number) => (
-                          <tr key={idx} onClick={() => { setAssessmentResult(result); setAppView('dashboard'); }} style={{ cursor: 'pointer' }}>
-                            <td style={{ fontWeight: 800, color: '#9ca3af', width: '50px' }}>#{idx + 1}</td>
-                            <td className={styles.metricName}>{result.athleteName}</td>
-                            <td style={{ fontWeight: 700, color: '#6b7280' }}>{result.age}</td>
-                            <td style={{ fontWeight: 800, color: '#3b82f6' }}>{result.sport}</td>
-                            <td className={styles.percentile}>{result.overallScore}%</td>
-                            <td>
+                          <tr key={idx} onClick={() => { setPreviousView('bulk'); setAssessmentResult(result); setAppView('dashboard'); }} style={{ cursor: 'pointer' }}>
+                            <td style={{ fontWeight: 800, color: '#9ca3af', width: '50px', textAlign: 'center' }}>#{idx + 1}</td>
+                            <td className={styles.metricName} style={{ textAlign: 'left' }}>{result.athleteName}</td>
+                            <td style={{ fontWeight: 700, color: '#6b7280', textAlign: 'center' }}>{result.age}</td>
+                            <td style={{ fontWeight: 800, color: '#3b82f6', textAlign: 'left' }}>{result.sport}</td>
+                            <td className={styles.percentile} style={{ textAlign: 'center' }}>{result.overallScore}%</td>
+                            <td style={{ textAlign: 'center' }}>
                               <span
                                 style={{
                                   color: result.overallRating === 'Elite Potential' || result.overallRating === 'Excellent' ? '#16a34a' :
@@ -284,10 +320,11 @@ function App() {
                                 {result.overallRating}
                               </span>
                             </td>
-                            <td style={{ color: '#000', fontWeight: 600 }}>{result.strengths[0].metric}</td>
+                            <td style={{ color: '#000', fontWeight: 600, textAlign: 'center' }}>{result.strengths[0].metric}</td>
                           </tr>
                         ))}
                       </tbody>
+
                     </table>
                   </div>
                 </div>

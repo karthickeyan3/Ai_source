@@ -25,10 +25,10 @@ export const RankingsTable = ({ metrics }: RankingsTableProps) => {
                 <table className={styles.table}>
                     <thead>
                         <tr>
-                            <th>METRIC</th>
+                            <th style={{ minWidth: '100px' }}>METRIC</th>
                             <th>VALUE</th>
                             <th>PERCENTILE</th>
-                            <th>RATING</th>
+                            <th style={{ minWidth: '95px' }}>RATING</th>
                             <th>PROGRESS</th>
                         </tr>
                     </thead>
@@ -40,7 +40,7 @@ export const RankingsTable = ({ metrics }: RankingsTableProps) => {
 
                             return (
                                 <tr key={idx}>
-                                    <td className={styles.metricName}>{m.metric}</td>
+                                    <td className={styles.metricName} style={{ fontWeight: 800, color: '#111827', fontSize: '0.8rem' }}>{m.metric}</td>
                                     <td className={styles.metricValue}>{displayValue} {m.unit}</td>
                                     <td
                                         className={styles.percentile}
@@ -51,11 +51,12 @@ export const RankingsTable = ({ metrics }: RankingsTableProps) => {
                                     <td
                                         style={{
                                             color: getRatingColor(m.rating),
-                                            fontSize: '0.85rem',
+                                            fontSize: '0.7rem',
                                             fontWeight: 900,
                                             textTransform: 'uppercase',
-                                            letterSpacing: '0.5px',
-                                            whiteSpace: 'nowrap'
+                                            letterSpacing: '0px',
+                                            paddingRight: '4px',
+                                            lineHeight: 1.1
                                         }}
                                     >
                                         {m.rating}

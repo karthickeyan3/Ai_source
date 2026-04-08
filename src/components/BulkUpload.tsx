@@ -102,13 +102,13 @@ export const BulkUpload = ({ onBulkResults }: BulkUploadProps) => {
                 <h3 className={styles.title}>CSV BULK UPLOAD</h3>
 
                 <div className={styles.summaryContent} style={{ marginBottom: 24 }}>
-                    <div className={`${styles.card} ${styles.summaryItem}`} style={{ gridColumn: 'span 2', background: '#f9fafb' }}>
+                    <div className={`${styles.card} ${styles.summaryItem}`} style={{ background: '#f9fafb' }}>
                         <h5 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <FileText size={16} /> CSV FORMAT REQUIREMENTS
                         </h5>
                         <p style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: 8 }}>
                             Required Headers: <strong>Name, Age, Gender</strong>. <br />
-                            Metrics (Optional): Height, Weight, VerticalJump, Flexibility, Plank, TTest, Reaction, Sprint.
+                            Metrics: Height, Weight, VerticalJump, Flexibility, Plank, TTest, Reaction, Sprint.
                         </p>
                         <button
                             onClick={downloadTemplate}

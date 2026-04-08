@@ -115,16 +115,16 @@ export const PerformanceRadar = ({ metrics, age, gender, sport = 'Basketball' }:
     }, [metrics, sport, gender, age]);
 
     return (
-        <div className={styles.card} style={{ display: 'flex', flexDirection: 'column', minHeight: '550px' }}>
+        <div className={styles.card} style={{ display: 'flex', flexDirection: 'column' }}>
             <h3 className={styles.title} style={{ marginBottom: '15px' }}>ATHLETIC PROFILE: {sport.toUpperCase()}</h3>
 
-            <div className={styles.chartContainer} style={{ height: '500px' }}>
+            <div className={`${styles.chartContainer} chart-container-capture`}>
                 <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart cx="50%" cy="45%" outerRadius="80%" data={radarData} margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
+                    <RadarChart cx="50%" cy="42%" outerRadius="80%" data={radarData} margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
                         <PolarGrid stroke="#e5e7eb" />
                         <PolarAngleAxis
                             dataKey="subject"
-                            tick={{ fill: '#4b5563', fontSize: 11, fontWeight: 700 }}
+                            tick={{ fill: '#111827', fontSize: 13, fontWeight: 800 }}
                         />
                         <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
                         <Tooltip content={<CustomTooltip />} />
@@ -155,7 +155,7 @@ export const PerformanceRadar = ({ metrics, age, gender, sport = 'Basketball' }:
                 gap: '8px',
                 alignItems: 'center',
                 paddingBottom: '30px',
-                marginTop: '-40px'
+                marginTop: '10px'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: '180px' }}>
                     <div style={{ width: '15px', height: '15px', background: '#16a34a', borderRadius: '2px' }}></div>
@@ -183,11 +183,11 @@ export const PerformanceRadar = ({ metrics, age, gender, sport = 'Basketball' }:
                             display: 'grid',
                             gridTemplateColumns: '1.5fr 1fr 1fr',
                             background: '#f9fafb',
-                            padding: '10px 16px',
+                            padding: '12px 16px',
                             borderBottom: '2px solid #e5e7eb',
-                            fontSize: '0.65rem',
+                            fontSize: '0.75rem',
                             fontWeight: 800,
-                            color: '#6b7280',
+                            color: '#111827',
                             textTransform: 'uppercase',
                             letterSpacing: '1px'
                         }}>
@@ -204,7 +204,7 @@ export const PerformanceRadar = ({ metrics, age, gender, sport = 'Basketball' }:
                                 background: i % 2 === 0 ? '#fff' : '#fafbfc',
                                 alignItems: 'center'
                             }}>
-                                <span style={{ fontWeight: 800, color: '#1f2937', fontSize: '0.75rem' }}>
+                                <span style={{ fontWeight: 800, color: '#111827', fontSize: '0.85rem' }}>
                                     {d.subject}
                                 </span>
                                 <span style={{ textAlign: 'center', fontWeight: 900, color: '#16a34a', fontSize: '0.85rem' }}>

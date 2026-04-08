@@ -6,9 +6,12 @@ import { Award, Crosshair } from 'lucide-react';
 interface ScoreCardProps {
     result: AssessmentResult;
     onSportSelect?: (sportName: string) => void;
+    actions?: React.ReactNode;
 }
 
-export const ScoreCard = ({ result, onSportSelect }: ScoreCardProps) => {
+
+export const ScoreCard = ({ result, onSportSelect, actions }: ScoreCardProps) => {
+
     const [activeTab, setActiveTab] = useState(0);
 
     // Communicate the initially selected sport back up (only on new result, not on every parent re-render)
@@ -30,7 +33,7 @@ export const ScoreCard = ({ result, onSportSelect }: ScoreCardProps) => {
     };
 
     return (
-        <div style={{ width: '100%', marginBottom: '24px' }}>
+        <div style={{ width: '100%', marginBottom: '32px' }}>
             <div className={styles.scoreGrid}>
                 <div className={styles.scoreCard}>
                     <div className={styles.scoreValue}>{result.overallScore}</div>
@@ -48,7 +51,7 @@ export const ScoreCard = ({ result, onSportSelect }: ScoreCardProps) => {
                     </div>
                 </div>
 
-                <div className={`${styles.card} ${styles.summaryCard}`} style={{ padding: '24px', minWidth: 0 }}>
+                <div className={`${styles.card} ${styles.summaryCard}`} style={{ minWidth: 0 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
                         <div>
                             <h3 style={{ margin: 0, fontSize: '1.65rem', fontWeight: 900, color: '#111827' }}>{result.athleteName}</h3>
@@ -59,7 +62,11 @@ export const ScoreCard = ({ result, onSportSelect }: ScoreCardProps) => {
                                 </p>
                             </div>
                         </div>
-                        <Award size={32} color="#AAFF00" />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                            {actions}
+                            <Award size={32} color="#AAFF00" />
+                        </div>
+
                     </div>
 
                     <div className={styles.summaryContent}>
@@ -67,7 +74,7 @@ export const ScoreCard = ({ result, onSportSelect }: ScoreCardProps) => {
                             <h5 style={{ color: '#000', fontSize: '0.85rem', marginBottom: '12px', letterSpacing: 1.5, fontWeight: 900, textTransform: 'uppercase' }}>CORE STRENGTHS</h5>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-start' }}>
                                 {result.strengths.slice(0, 5).map((s, i) => (
-                                    <div key={i} className={styles.metricPill} style={{ margin: 0, padding: '4px 12px', fontSize: '0.85rem', fontWeight: 700 }}>
+                                    <div key={i} className={styles.metricPill} style={{ margin: 0, padding: '6px 14px', fontSize: '0.9rem', fontWeight: 800, color: '#111827' }}>
                                         {s.metric} <span style={{ color: '#16a34a', fontWeight: 900 }}>{s.percentile}%</span>
                                     </div>
                                 ))}
@@ -77,7 +84,7 @@ export const ScoreCard = ({ result, onSportSelect }: ScoreCardProps) => {
                             <h5 style={{ color: '#000', fontSize: '0.85rem', marginBottom: '12px', letterSpacing: 1.5, fontWeight: 900, textTransform: 'uppercase' }}>GROWTH AREAS</h5>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-start' }}>
                                 {growthAreasToDisplay.map((s, i) => (
-                                    <div key={i} className={styles.metricPill} style={{ margin: 0, padding: '4px 12px', fontSize: '0.85rem', fontWeight: 700 }}>
+                                    <div key={i} className={styles.metricPill} style={{ margin: 0, padding: '6px 14px', fontSize: '0.9rem', fontWeight: 800, color: '#111827' }}>
                                         {s.metric} <span style={{ color: getGrowthColor(s.percentile), fontWeight: 900 }}>{s.percentile}%</span>
                                     </div>
                                 ))}
@@ -86,7 +93,7 @@ export const ScoreCard = ({ result, onSportSelect }: ScoreCardProps) => {
                     </div>
                 </div>
 
-                <div className={styles.card} style={{ padding: '24px', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+                <div className={styles.card} style={{ minWidth: 0, display: 'flex', flexDirection: 'column' }}>
                     <h5 style={{ color: '#111827', fontSize: '0.9rem', marginBottom: '18px', letterSpacing: 1, fontWeight: 900, display: 'flex', alignItems: 'center', gap: '10px', textTransform: 'uppercase' }}>
                         <Crosshair size={16} color="#AAFF00" /> Talent ID Discovery
                     </h5>
@@ -124,8 +131,8 @@ export const ScoreCard = ({ result, onSportSelect }: ScoreCardProps) => {
                                     minHeight: '48px'
                                 }}
                             >
-                                {s.sport.includes(' - ') 
-                                    ? s.sport.split(' - ')[1].replace('Jumps ', '').replace(' (', '\n').replace(')', '')
+                                {s.sport.includes(' - ')
+                                    ? s.sport.split(' - ')[0].replace('Track & Field', 'Track')
                                     : s.sport.split(' ')[0]}
                             </button>
                         ))}
@@ -147,15 +154,22 @@ export const ScoreCard = ({ result, onSportSelect }: ScoreCardProps) => {
                                 position: 'relative'
                             }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                                    <span style={{ fontSize: '1.25rem', fontWeight: 900, color: '#fff' }}>
-                                        {result.recommendedSports[activeTab].sport}
+                                    <span style={{ fontSize: '1.4rem', fontWeight: 950, color: '#fff', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                                        {result.recommendedSports[activeTab].sport.split(' - ')[0]}
                                     </span>
-                                    <div style={{ color: '#AAFF00', fontWeight: 900, fontSize: '1.15rem' }}>
+                                    <div style={{ color: '#AAFF00', fontWeight: 900, fontSize: '1.25rem' }}>
                                         {result.recommendedSports[activeTab].matchScore}%
                                     </div>
                                 </div>
-                                <div style={{ fontSize: '1rem', color: '#9ca3af', lineHeight: 1.6 }}>
-                                    <strong style={{ color: '#AAFF00' }}>Traits:</strong> {result.recommendedSports[activeTab].keyTraits}
+                                <div style={{ fontSize: '1rem', color: '#e5e7eb', lineHeight: 1.6 }}>
+                                    {result.recommendedSports[activeTab].sport.includes(' - ') && (
+                                        <div style={{ marginBottom: '6px', fontSize: '1.1rem', fontWeight: 700, color: '#AAFF00' }}>
+                                            {result.recommendedSports[activeTab].sport.split(' - ')[1]}
+                                        </div>
+                                    )}
+                                    <div style={{ opacity: 0.85 }}>
+                                        <strong style={{ color: '#AAFF00' }}>Traits:</strong> {result.recommendedSports[activeTab].keyTraits}
+                                    </div>
                                 </div>
                             </div>
 

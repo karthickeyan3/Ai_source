@@ -192,16 +192,7 @@ export const InputForm = ({ onAnalyze, isFullPage = false }: InputFormProps) => 
             {!isFullPage && <h3 className={styles.title}>ATHLETE ASSESSMENT FORM</h3>}
             <form onSubmit={handleSubmit} noValidate>
                 {/* ── Identity section ── */}
-                <div style={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: isFullPage ? '2fr 1fr 1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', 
-                    gap: '20px', 
-                    marginBottom: '32px',
-                    padding: '24px',
-                    background: '#f8fafc',
-                    borderRadius: '16px',
-                    border: '1px solid #e2e8f0'
-                }}>
+                <div className={styles.identityGrid} style={{ marginBottom: '32px' }}>
                     <div className={styles.formGroup}>
                         <label className={styles.label} style={{ fontSize: '0.75rem', marginBottom: '6px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
                             <User size={14} /> Full Name
@@ -272,16 +263,7 @@ export const InputForm = ({ onAnalyze, isFullPage = false }: InputFormProps) => 
                     </div>
                 </div>
 
-                <div style={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: 'minmax(300px, 1fr) minmax(300px, 1fr)', 
-                    gap: '40px',
-                    padding: '30px',
-                    background: '#ffffff',
-                    borderRadius: '16px',
-                    border: '1px solid #e5e7eb',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                }}>
+                <div className={styles.formSectionsGrid}>
                     <div>
                         <h4 style={{ fontSize: '0.85rem', fontWeight: 800, color: '#111827', marginBottom: '24px', textTransform: 'uppercase', letterSpacing: '1px', borderLeft: '4px solid #AAFF00', paddingLeft: '12px' }}>Body Metrics</h4>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -303,7 +285,7 @@ export const InputForm = ({ onAnalyze, isFullPage = false }: InputFormProps) => 
                 )}
 
                 <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'center' }}>
-                    <button type="submit" className={styles.analyzeBtn} style={{ width: '280px', margin: 0 }}>
+                    <button type="submit" className={styles.analyzeBtn} style={{ maxWidth: '280px', width: '100%', margin: 0 }}>
                         💾 ANALYZE PERFORMANCE
                     </button>
                 </div>
