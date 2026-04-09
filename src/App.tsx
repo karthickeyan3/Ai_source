@@ -11,11 +11,16 @@ import { AdminDashboard } from './pages/AdminDashboard'
 import { AdminLogin } from './pages/AdminLogin'
 import { UserLogin } from './pages/UserLogin'
 import styles from './App.module.css'
-import { Activity, Users, Download, ChevronLeft, Filter, FileDown } from 'lucide-react'
+import { Activity, Download, ChevronLeft, Filter, FileDown, Home, Plus, Upload } from 'lucide-react'
 import { exportToPDF } from './utils/reportExporter'
 
 
 type AppView = 'landing' | 'assessment' | 'dashboard' | 'bulk' | 'admin';
+
+const scrollToTop = () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
 
 function App() {
   const [appView, setAppView] = useState<AppView>('landing')
@@ -38,12 +43,21 @@ function App() {
     setActiveSport(null);
     setPreviousView('assessment');
     setAppView('dashboard');
+    scrollToTop();
   };
 
   const handleBulkResults = (results: AssessmentResult[]) => {
     setBulkResults(results);
     setAssessmentResult(null); // Clear single report when new bulk upload happens
     setAppView('bulk');
+    scrollToTop();
+  };
+
+  const handleNewBulkUpload = () => {
+    setBulkResults([]);
+    setAssessmentResult(null);
+    setAppView('bulk');
+    scrollToTop();
   };
 
   const handleLogout = () => {
@@ -53,6 +67,7 @@ function App() {
     setAssessmentResult(null);
     setBulkResults([]);
     setActiveSport(null);
+    scrollToTop();
   };
   const filteredBulkResults = useMemo(() => {
     return bulkResults
@@ -74,6 +89,7 @@ function App() {
 
   const handleLandingStart = (view: 'single' | 'bulk' | 'admin') => {
     setAppView(view === 'single' ? 'assessment' : (view === 'bulk' ? 'bulk' : 'admin'));
+    scrollToTop();
   };
 
   const downloadBulkResults = () => {
@@ -93,9 +109,15 @@ function App() {
       + rows.map((row: Record<string, unknown>) => Object.values(row).join(",")).join("\n");
 
     const encodedUri = encodeURI(csvContent);
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = now.toLocaleString('en-GB', { month: 'short' });
+    const year = now.getFullYear();
+    const dateStr = `${day}-${month}-${year}`;
+
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "SRS_bulk_report.csv");
+    link.setAttribute("download", `SRS_bulk_report_${dateStr}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -111,20 +133,41 @@ function App() {
     <div className={styles.app}>
       <header className={styles.header}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          {appView === 'dashboard' && (
+          {((appView === 'admin' && !isAdminLoggedIn) || (['assessment', 'dashboard', 'bulk'].includes(appView) && !isUserLoggedIn)) && (
             <button
-              onClick={() => setAppView(previousView)}
+              onClick={() => { setAppView('landing'); scrollToTop(); }}
               style={{
                 background: '#000000',
                 border: '1px solid #000000',
                 borderRadius: 6,
-                padding: '6px 12px',
+                padding: '6px 14px',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 6,
                 fontSize: '0.75rem',
-                fontWeight: 700,
+                fontWeight: 800,
+                color: '#ffffff',
+                marginRight: 10
+              }}
+            >
+              <Home size={14} /> HOME
+            </button>
+          )}
+          {appView === 'dashboard' && (
+            <button
+              onClick={() => { setAppView(previousView); scrollToTop(); }}
+              style={{
+                background: '#000000',
+                border: '1px solid #000000',
+                borderRadius: 6,
+                padding: '6px 14px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                fontSize: '0.75rem',
+                fontWeight: 800,
                 color: '#ffffff',
               }}
             >
@@ -142,47 +185,41 @@ function App() {
               <>
                 <button
                   className={`${styles.tab} ${appView === 'assessment' ? styles.tabActive : ''}`}
-                  onClick={() => setAppView('assessment')}
+                  onClick={() => { setAppView('assessment'); scrollToTop(); }}
                   style={{ padding: '8px 18px' }}
                 >
                   <Activity size={13} strokeWidth={2.5} /> NEW ASSESSMENT
                 </button>
                 <button
                   className={`${styles.tab} ${appView === 'bulk' ? styles.tabActive : ''}`}
-                  onClick={() => setAppView('bulk')}
+                  onClick={handleNewBulkUpload}
                   style={{ padding: '8px 18px' }}
                 >
-                  <Users size={13} strokeWidth={2.5} /> BULK UPLOAD
+                  <Upload size={13} strokeWidth={2.5} />Bulk CSV Upload
                 </button>
-                {assessmentResult && (
-                  <button
-                    className={`${styles.tab} ${appView === 'dashboard' ? styles.tabActive : ''}`}
-                    onClick={() => setAppView('dashboard')}
-                    style={{ padding: '8px 18px' }}
-                  >
-                    <Activity size={13} strokeWidth={2.5} /> PERFORMANCE INSIGHTS
-                  </button>
-                )}
+
               </>
             )}
-            <button
-              className={styles.tab}
-              onClick={handleLogout}
-              style={{
-                background: '#000000',
-                color: '#ffffff',
-                border: 'none',
-                padding: '8px 18px',
-                borderRadius: 8,
-                fontWeight: 700,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                fontSize: '0.75rem'
-              }}
-            >
-              LOGOUT
-            </button>
+            {(isUserLoggedIn || isAdminLoggedIn) && appView !== 'admin' && (
+              <button
+                className={styles.tab}
+                onClick={handleLogout}
+                style={{
+                  background: '#000000',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '8px 18px',
+                  borderRadius: 8,
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  fontSize: '0.75rem'
+                }}
+              >
+                LOGOUT
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -219,6 +256,7 @@ function App() {
                   age={assessmentResult.age}
                   gender={assessmentResult.gender}
                   sport={activeSport || assessmentResult.sport}
+                  athleteName={assessmentResult.athleteName}
                 />
                 <RankingsTable metrics={assessmentResult.metrics} />
               </div>
@@ -229,30 +267,50 @@ function App() {
 
         {appView === 'bulk' && isUserLoggedIn && (
           <div className={styles.resultsPanel}>
-            <BulkUpload onBulkResults={handleBulkResults} />
-
-            {bulkResults.length > 0 && (
+            {bulkResults.length === 0 ? (
+              <BulkUpload onBulkResults={handleBulkResults} />
+            ) : (
               <div className={styles.card}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: 12 }}>
                   <h2 className={styles.tableTitle}>BULK ASSESSMENT RESULTS ({bulkResults.length})</h2>
-                  <button
-                    onClick={downloadBulkResults}
-                    style={{
-                      background: '#AAFF00',
-                      color: '#000',
-                      border: 'none',
-                      padding: '10px 20px',
-                      borderRadius: 8,
-                      fontWeight: 800,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 10,
-                      fontSize: '0.85rem',
-                    }}
-                  >
-                    <Download size={18} /> EXPORT CSV REPORT
-                  </button>
+                  <div style={{ display: 'flex', gap: 12 }}>
+                    <button
+                      onClick={handleNewBulkUpload}
+                      style={{
+                        background: '#000',
+                        color: '#fff',
+                        border: 'none',
+                        padding: '10px 20px',
+                        borderRadius: 8,
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        fontSize: '0.85rem',
+                      }}
+                    >
+                      <Plus size={18} /> New Bulk CSV Upload
+                    </button>
+                    <button
+                      onClick={downloadBulkResults}
+                      style={{
+                        background: '#AAFF00',
+                        color: '#000',
+                        border: 'none',
+                        padding: '10px 20px',
+                        borderRadius: 8,
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        fontSize: '0.85rem',
+                      }}
+                    >
+                      <Download size={18} /> EXPORT CSV REPORT
+                    </button>
+                  </div>
                 </div>
 
                 <div className={styles.filterSection}>
@@ -302,11 +360,11 @@ function App() {
                       </thead>
                       <tbody>
                         {filteredBulkResults.map((result: AssessmentResult, idx: number) => (
-                          <tr key={idx} onClick={() => { setPreviousView('bulk'); setAssessmentResult(result); setAppView('dashboard'); }} style={{ cursor: 'pointer' }}>
+                          <tr key={idx} onClick={() => { setPreviousView('bulk'); setAssessmentResult(result); setAppView('dashboard'); scrollToTop(); }} style={{ cursor: 'pointer' }}>
                             <td style={{ fontWeight: 800, color: '#9ca3af', width: '50px', textAlign: 'center' }}>#{idx + 1}</td>
                             <td className={styles.metricName} style={{ textAlign: 'left' }}>{result.athleteName}</td>
                             <td style={{ fontWeight: 700, color: '#6b7280', textAlign: 'center' }}>{result.age}</td>
-                            <td style={{ fontWeight: 800, color: '#3b82f6', textAlign: 'left' }}>{result.sport}</td>
+                            <td style={{ fontWeight: 800, color: '#3b82f6', textAlign: 'center' }}>{result.sport}</td>
                             <td className={styles.percentile} style={{ textAlign: 'center' }}>{result.overallScore}%</td>
                             <td style={{ textAlign: 'center' }}>
                               <span

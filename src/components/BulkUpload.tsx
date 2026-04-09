@@ -108,7 +108,7 @@ export const BulkUpload = ({ onBulkResults }: BulkUploadProps) => {
                         </h5>
                         <p style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: 8 }}>
                             Required Headers: <strong>Name, Age, Gender</strong>. <br />
-                            Metrics: Height, Weight, VerticalJump, Flexibility, Plank, TTest, Reaction, Sprint.
+                            Metrics: Height, Weight, VerticalJump, Flexibility, Plank, T-Test, Reaction, Sprint.
                         </p>
                         <button
                             onClick={downloadTemplate}

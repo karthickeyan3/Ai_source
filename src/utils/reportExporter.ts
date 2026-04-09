@@ -46,8 +46,8 @@ export const exportToPDF = async (elementId: string, fileName: string) => {
                    // Radar Chart Card Wrapper
                    const radarWrapper = grid.children[0] as HTMLElement;
                    if (radarWrapper) {
-                       radarWrapper.style.flex = '0 0 640px';
-                       radarWrapper.style.maxWidth = '640px';
+                       radarWrapper.style.flex = '0 0 600px';
+                       radarWrapper.style.maxWidth = '600px';
                        radarWrapper.style.boxShadow = 'none';
                        radarWrapper.style.border = '1px solid #f3f4f6';
                        
@@ -63,7 +63,7 @@ export const exportToPDF = async (elementId: string, fileName: string) => {
                    const tableWrapper = grid.children[1] as HTMLElement;
                    if (tableWrapper) {
                        tableWrapper.style.flex = '1';
-                       tableWrapper.style.maxWidth = '460px';
+                       tableWrapper.style.maxWidth = '520px'; // Increased from 460px
                        tableWrapper.style.boxShadow = 'none';
                        tableWrapper.style.border = '1px solid #f3f4f6';
                    }
@@ -104,7 +104,12 @@ export const exportToPDF = async (elementId: string, fileName: string) => {
             pageCount++;
         }
 
-        const dateStr = new Date().toLocaleDateString().replace(/\//g, '-');
+        const now = new Date();
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = now.toLocaleString('en-GB', { month: 'short' });
+        const year = now.getFullYear();
+        const dateStr = `${day}-${month}-${year}`;
+        
         pdf.save(`${fileName.replace(/\s+/g, '_')}_Report_${dateStr}.pdf`);
         
     } catch (error) {

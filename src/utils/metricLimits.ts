@@ -22,21 +22,20 @@ export const METRIC_LIMITS: Record<string, MetricLimit> = {
      * Absolute bounds allow for very short or very tall youth athletes.
      */
     height: {
-        min: 100,
-        max: 250,
+        min: 10,
+        max: 300,
         step: 0.1,
-        hint: 'Valid range for youth athletes (age 10-16): 100 - 250 cm',
+        hint: 'Height measurement (cm)',
     },
 
     /**
-     * Weight: 10-yr-old ~25-40 kg; 16-yr-old up to ~100 kg for a large athlete.
-     * 25 kg is a very slight 10-year-old; 120 kg is an outlier upper bound.
+     * Weight: effectively unrestricted.
      */
     weight: {
-        min: 15,
-        max: 130,
+        min: 5,
+        max: 500,
         step: 0.1,
-        hint: 'Valid range for youth athletes (age 10-16): 15 - 130 kg',
+        hint: 'Weight measurement (kg)',
     },
 
     /**
@@ -95,83 +94,77 @@ export const METRIC_LIMITS: Record<string, MetricLimit> = {
     // ── Performance Metrics ────────────────────────────────────────────────
     /**
      * Vertical jump: typical youth range 20-55 cm.
-     * 10 cm min = very weak; 80 cm max = exceptional elite teenage athlete.
+     * 5 cm min = baseline; 120 cm max = world-class elite athlete profile.
      */
     verticalJump: {
-        min: 7,
-        max: 90,
+        min: 5,
+        max: 120,
         step: 0.1,
-        hint: 'Vertical jump: 7 - 90 cm (typical youth: 20 - 55 cm)',
+        hint: 'Vertical jump: 5 - 120 cm (typical youth: 20 - 55 cm)',
     },
 
     /**
      * Sit & reach flexibility test.
-     * Negative values are valid (tight hamstrings). Max ~55 cm for very flexible athletes.
+     * Negative values are valid (tight hamstrings). Max ~65 cm for extreme flexibility.
      */
     sitAndReach: {
-        min: -20,
-        max: 60,
+        min: 3,
+        max: 70,
         step: 0.1,
-        hint: 'Sit & reach: −20 to 60 cm (negative = below foot-line)',
+        hint: 'Sit & reach: −30 to 70 cm (negative = below foot-line)',
     },
 
     /**
-     * Plank test (seconds): 10 s min (struggle); 480 s max (8 min = exceptional).
-     * Average youth: 60-180 s.
+     * Plank test (seconds): 5 s min; 900 s max (15 min = extreme endurance).
      */
     plankTest: {
-        min: 7,
-        max: 500,
+        min: 5,
+        max: 900,
         step: 1,
-        hint: 'Plank hold: 7 - 500 s (typical youth: 60 - 180 s)',
+        hint: 'Plank hold: 5 - 900 s (typical youth: 60 - 180 s)',
     },
 
     /**
      * T-Test agility (seconds, lower = faster):
-     * Elite youth: ~8.5 s. Typical: 10-13 s. Max 18 s = very slow.
-     * min 7.5 s = physically achievable lower bound for top youth athlete.
+     * Absolute world-class youth lower bound ≈ 6.0 s.
      */
     tTest: {
-        min: 7.5,
-        max: 18.0,
+        min: 6.0,
+        max: 25.0,
         step: 0.01,
-        hint: 'T-Test: 7.5 - 18 s (lower = better; typical youth: 10 - 13 s)',
+        hint: 'T-Test: 6.0 - 25 s (lower = better; typical youth: 10 - 13 s)',
     },
 
     /**
      * Reaction time (seconds, lower = faster):
-     * Human neurophysiology lower limit ≈ 0.10 s (100 ms).
-     * Typical youth: 0.20-0.45 s. Slow: >0.65 s.
+     * Extreme human limit ≈ 0.05 s.
      */
     reactionTime: {
-        min: 0.10,
-        max: 1.20,
+        min: 0.05,
+        max: 2.00,
         step: 0.001,
-        hint: 'Reaction time: 0.10 - 1.20 s (lower = better; typical: 0.35 - 0.65 s)',
+        hint: 'Reaction time: 0.05 - 2.00 s (lower = better; typical: 0.35 - 0.65 s)',
     },
 
     /**
-     * Response time (seconds): slightly longer than reaction time.
-     * Includes the execution motor component. 0.12 s minimum is realistic.
+     * Response time (seconds): 0.10 s minimum for motor execution.
      */
     responseTime: {
-        min: 0.15,
-        max: 2.00,
+        min: 0.10,
+        max: 3.50,
         step: 0.001,
-        hint: 'Response time: 0.15 - 2.00 s (lower = better; typical: 0.50 - 1.10 s)',
+        hint: 'Response time: 0.10 - 3.50 s (lower = better; typical: 0.50 - 1.10 s)',
     },
 
     /**
      * 40m sprint (seconds, lower = faster):
-     * Elite youth sprinters: ~5.0 s. Average 10-yr-old: ~8.0 s.
-     * 4.5 s minimum = absolute fastest possible for a 16-year-old.
-     * 11.0 s maximum = very slow jog.
+     * Relaxed to allow for record-breaking youth prodigies (down to 3.5s).
      */
     sprint40m: {
-        min: 4.5,
-        max: 13.0,
+        min: 3.5,
+        max: 15.0,
         step: 0.01,
-        hint: '40m sprint: 4.5 - 13.0 s (lower = better; typical youth: 5.5 - 8.5 s)',
+        hint: '40m sprint: 3.5 - 15.0 s (lower = better; typical youth: 5.5 - 8.5 s)',
     },
 };
 

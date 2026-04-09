@@ -17,7 +17,7 @@ export const AdminLogin = ({ onLoginSuccess }: AdminLoginProps) => {
     const handleCredentialsSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (email === 'srs2026@secure' && password === 'admin123') {
+        if (email === 'srs2026@secure' && password === '@dm1n1-3') {
             setError('');
             setStep('otp');
         } else {

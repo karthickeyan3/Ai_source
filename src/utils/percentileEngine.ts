@@ -308,7 +308,7 @@ const getSportRecommendations = (data: FormData): { recommendations: Recommended
                 .slice(0, 2)
                 .map(x => x[0].charAt(0).toUpperCase() + x[0].slice(1))
                 .join(' + '),
-            talentIndicator: matchScore > 90 ? 'Elite Prototype' : matchScore > 80 ? 'Strong Prospect' : matchScore > 65 ? 'Solid Contender' : 'Developing Talent'
+            talentIndicator: matchScore > 90 ? 'Elite Prototype' : matchScore > 80 ? 'Strong Prospect' : matchScore > 65 ? 'Solid Contender' : 'Emerging Athletic Profile'
         });
     });
 

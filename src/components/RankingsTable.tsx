@@ -22,14 +22,14 @@ export const RankingsTable = ({ metrics }: RankingsTableProps) => {
         <div className={styles.card}>
             <h2 className={styles.tableTitle}>PERCENTILE RANKINGS</h2>
             <div className={styles.tableWrapper}>
-                <table className={styles.table}>
+                <table className={styles.table} style={{ tableLayout: 'fixed' }}>
                     <thead>
                         <tr>
-                            <th style={{ minWidth: '100px' }}>METRIC</th>
-                            <th>VALUE</th>
-                            <th>PERCENTILE</th>
-                            <th style={{ minWidth: '95px' }}>RATING</th>
-                            <th>PROGRESS</th>
+                            <th style={{ width: '22%', whiteSpace: 'normal', padding: '12px 6px' }}>METRIC</th>
+                            <th style={{ width: '18%', whiteSpace: 'normal', padding: '12px 6px' }}>VALUE</th>
+                            <th style={{ width: '15%', whiteSpace: 'normal', padding: '12px 6px' }}>RANK (%)</th>
+                            <th style={{ width: '22%', whiteSpace: 'normal', padding: '12px 6px' }}>RATING</th>
+                            <th style={{ width: '23%', whiteSpace: 'normal', padding: '12px 6px' }}>PROGRESS</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -40,28 +40,29 @@ export const RankingsTable = ({ metrics }: RankingsTableProps) => {
 
                             return (
                                 <tr key={idx}>
-                                    <td className={styles.metricName} style={{ fontWeight: 800, color: '#111827', fontSize: '0.8rem' }}>{m.metric}</td>
-                                    <td className={styles.metricValue}>{displayValue} {m.unit}</td>
+                                    <td className={styles.metricName} style={{ fontWeight: 800, color: '#111827', fontSize: '0.75rem', padding: '12px 6px' }}>{m.metric}</td>
+                                    <td className={styles.metricValue} style={{ padding: '12px 6px', fontSize: '0.8rem' }}>{displayValue} {m.unit}</td>
                                     <td
-                                        className={styles.percentile}
-                                        style={{ color: getRatingColor(m.rating) }}
-                                    >
-                                        {m.percentile}%
-                                    </td>
+                                         className={styles.percentile}
+                                         style={{ color: getRatingColor(m.rating), padding: '12px 6px', fontSize: '0.85rem' }}
+                                     >
+                                         {m.percentile}%
+                                     </td>
                                     <td
-                                        style={{
-                                            color: getRatingColor(m.rating),
-                                            fontSize: '0.7rem',
-                                            fontWeight: 900,
-                                            textTransform: 'uppercase',
-                                            letterSpacing: '0px',
-                                            paddingRight: '4px',
-                                            lineHeight: 1.1
-                                        }}
-                                    >
-                                        {m.rating}
-                                    </td>
-                                    <td>
+                                         style={{
+                                             color: getRatingColor(m.rating),
+                                             fontSize: '0.65rem',
+                                             fontWeight: 900,
+                                             textTransform: 'uppercase',
+                                             letterSpacing: '0px',
+                                             padding: '12px 6px',
+                                             lineHeight: 1.2,
+                                             wordBreak: 'break-word'
+                                         }}
+                                     >
+                                         {m.rating}
+                                     </td>
+                                    <td style={{ padding: '12px 6px' }}>
                                         <ProgressBar percentile={m.percentile} />
                                     </td>
                                 </tr>

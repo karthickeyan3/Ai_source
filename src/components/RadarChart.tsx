@@ -12,6 +12,7 @@ interface RadarChartProps {
     age: number;
     gender: Gender;
     sport?: string;
+    athleteName?: string;
 }
 
 const CustomTooltip = ({ active, payload }: any) => {
@@ -46,7 +47,7 @@ const CustomTooltip = ({ active, payload }: any) => {
     return null;
 };
 
-export const PerformanceRadar = ({ metrics, age, gender, sport = 'Basketball' }: RadarChartProps) => {
+export const PerformanceRadar = ({ metrics, age, gender, sport = 'Basketball', athleteName = 'Athlete' }: RadarChartProps) => {
     // Select specific metrics for the radar axes
     const selectedMapping = [
         { label: 'Reaction Time', key: 'reactionTime' },
@@ -120,7 +121,7 @@ export const PerformanceRadar = ({ metrics, age, gender, sport = 'Basketball' }:
 
             <div className={`${styles.chartContainer} chart-container-capture`}>
                 <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart cx="50%" cy="42%" outerRadius="80%" data={radarData} margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
+                    <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData} margin={{ top: 10, right: 30, bottom: 10, left: 30 }}>
                         <PolarGrid stroke="#e5e7eb" />
                         <PolarAngleAxis
                             dataKey="subject"
@@ -154,8 +155,8 @@ export const PerformanceRadar = ({ metrics, age, gender, sport = 'Basketball' }:
                 flexDirection: 'column',
                 gap: '8px',
                 alignItems: 'center',
-                paddingBottom: '30px',
-                marginTop: '10px'
+                paddingBottom: '20px',
+                marginTop: '0px'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: '180px' }}>
                     <div style={{ width: '15px', height: '15px', background: '#16a34a', borderRadius: '2px' }}></div>
@@ -166,7 +167,7 @@ export const PerformanceRadar = ({ metrics, age, gender, sport = 'Basketball' }:
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: '180px' }}>
                     <div style={{ width: '15px', height: '15px', background: '#111827', borderRadius: '2px' }}></div>
                     <span style={{ fontSize: '0.9rem', fontWeight: 900, color: '#111827', textTransform: 'uppercase', letterSpacing: 1.5 }}>
-                        YOUR SCORE
+                        {athleteName} SCORE
                     </span>
                 </div>
             </div>
@@ -192,8 +193,11 @@ export const PerformanceRadar = ({ metrics, age, gender, sport = 'Basketball' }:
                             letterSpacing: '1px'
                         }}>
                             <span>Metric</span>
-                            <span style={{ textAlign: 'center', color: '#16a34a' }}>Elite</span>
-                            <span style={{ textAlign: 'center', color: '#111827' }}>You</span>
+                            <div style={{ textAlign: 'center', color: '#16a34a', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>
+                                ELITE
+                                <span style={{ fontSize: '0.6rem', color: '#6b7280', textTransform: 'lowercase', fontWeight: 700, marginTop: '4px' }}>under age ({age})</span>
+                            </div>
+                            <span style={{ textAlign: 'center', color: '#111827', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{athleteName}</span>
                         </div>
                         {radarData.map((d, i) => (
                             <div key={i} style={{
