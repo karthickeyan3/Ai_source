@@ -133,13 +133,13 @@ export const InputForm = ({ onAnalyze, isFullPage = false }: InputFormProps) => 
         const showError = isTouched && !!error;
 
         return (
-            <div key={field.name} style={{ 
+            <div key={field.name} style={{
                 marginBottom: '1.25rem',
                 position: 'relative'
             }}>
-                <label className={styles.label} style={{ 
-                    fontSize: '0.75rem', 
-                    marginBottom: '6px', 
+                <label className={styles.label} style={{
+                    fontSize: '0.75rem',
+                    marginBottom: '6px',
                     opacity: 0.9,
                     fontWeight: 700,
                     display: 'flex',
@@ -200,7 +200,7 @@ export const InputForm = ({ onAnalyze, isFullPage = false }: InputFormProps) => 
                         <div style={{ position: 'relative' }}>
                             <input
                                 className={`${styles.input} ${styles.nameInput}`}
-                                style={{ 
+                                style={{
                                     padding: '8px 12px', fontSize: '0.9rem', height: '40px',
                                     ...((touched['name'] || submitAttempted) && errors['name'] ? { borderColor: '#ef4444' } : {})
                                 }}
@@ -223,7 +223,7 @@ export const InputForm = ({ onAnalyze, isFullPage = false }: InputFormProps) => 
                         <div style={{ position: 'relative' }}>
                             <input
                                 className={`${styles.input} ${styles.ageInput}`}
-                                style={{ 
+                                style={{
                                     padding: '8px 12px', fontSize: '0.9rem', height: '40px',
                                     ...((touched['age'] || submitAttempted) && errors['age'] ? { borderColor: '#ef4444' } : {})
                                 }}
@@ -250,11 +250,11 @@ export const InputForm = ({ onAnalyze, isFullPage = false }: InputFormProps) => 
                     </div>
                     <div className={styles.formGroup}>
                         <label className={styles.label} style={{ fontSize: '0.75rem', marginBottom: '6px', fontWeight: 700 }}>Gender</label>
-                        <select 
-                            className={styles.select} 
-                            style={{ padding: '8px 12px', fontSize: '0.9rem', height: '40px' }} 
-                            name="gender" 
-                            value={formData.gender as string} 
+                        <select
+                            className={styles.select}
+                            style={{ padding: '8px 12px', fontSize: '0.9rem', height: '40px' }}
+                            name="gender"
+                            value={formData.gender as string}
                             onChange={handleChange}
                         >
                             <option value="Male">Male</option>

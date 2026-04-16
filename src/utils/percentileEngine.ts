@@ -9,32 +9,30 @@ export const getAgeGroup = (age: number): AgeGroup => {
     return a.toString() as AgeGroup;
 };
 
-// Metrics where LOWER value = BETTER performance
-// waistCircumference: leaner waist is better
-// bmi: lower BMI is generally better for athletes (lean body is elite)
-// skinfold: lower body fat is better
+// Metrics where LOWER value = BETTER performance (performance metrics ONLY)
+// NOTE: All body/structural metrics (height, weight, BMI, waist, skinfold, etc.)
+// use optimal-range scoring instead — see OPTIMAL_RANGE handling below.
 const INVERSE_METRICS = [
-    'tTest', 'reactionTime', 'responseTime', 'sprint40m',
-    'waistCircumference', 'skinfold', 'bmi'
+    'tTest', 'reactionTime', 'responseTime', 'sprint40m'
 ];
 
 const GROWTH_COEFFICIENT = 0.06; // 5-8% annual improvement during puberty
 
 const metricsList = [
-    { key: 'verticalJump', label: 'Vertical Jump', unit: 'cm' },
-    { key: 'sitAndReach', label: 'Sit & Reach', unit: 'cm' },
-    { key: 'plankTest', label: 'Plank Test', unit: 's' },
-    { key: 'tTest', label: 'T-Test', unit: 's' },
-    { key: 'reactionTime', label: 'Reaction Time', unit: 's' },
+    { key: 'verticalJump', label: 'Explosive Power', unit: 'cm' },
+    { key: 'sitAndReach', label: 'Flexibility', unit: 'cm' },
+    { key: 'plankTest', label: 'Core Strength', unit: 's' },
+    { key: 'tTest', label: 'Agility (T-Test)', unit: 's' },
+    { key: 'reactionTime', label: 'Reaction Speed', unit: 's' },
     { key: 'responseTime', label: 'Response Time', unit: 's' },
-    { key: 'sprint40m', label: '40m Sprint', unit: 's' },
+    { key: 'sprint40m', label: 'Sprint Speed (40m)', unit: 's' },
     { key: 'height', label: 'Height', unit: 'cm' },
     { key: 'weight', label: 'Weight', unit: 'kg' },
     { key: 'shoulderGirth', label: 'Shoulder Girth', unit: 'cm' },
     { key: 'hipCircumference', label: 'Hip Circumference', unit: 'cm' },
     { key: 'waistCircumference', label: 'Waist Circumference', unit: 'cm' },
     { key: 'skinfold', label: 'Skinfold', unit: 'mm' },
-    { key: 'bmi', label: 'BMI', unit: 'kg/m²' },
+    { key: 'bmi', label: 'Fitness Shape', unit: 'kg/m²' },
     { key: 'hipToToe', label: 'Hip to Toe', unit: 'cm' },
 ];
 
@@ -73,104 +71,81 @@ export const calculateMetricStats = (
     const baselineAge = '12'; // Standard baseline for performance metrics per Trial1.rtf
     let isInverse = INVERSE_METRICS.includes(metricKey);
 
-    const isStructural = ['height', 'weight', 'bmi', 'shoulderGirth', 'hipCircumference',
-        'waistCircumference', 'hipToToe', 'skinfold'].includes(metricKey);
+    const isStructural = ['height', 'weight', 'bmi', 'shouldergirth', 'hipcircumference',
+        'waistcircumference', 'hiptotoe', 'skinfold'].includes(metricKey.toLowerCase());
 
-    const enduranceSports = ['distance', 'rowing', 'cycling', 'marathon', 'cross country'];
-    const isEndurance = enduranceSports.some(term => sport.toLowerCase().includes(term));
-    if (isEndurance && (metricKey === 'bmi' || metricKey === 'weight') && !forDisplay) {
-        isInverse = true;
-    }
+    // NOTE: Endurance weight override removed — optimal-range scoring with
+    // sport-specific norms inherently handles this (distance runner p50 weight
+    // is lower than thrower p50 weight, so the scoring adapts automatically).
 
     const ageDiff = 12 - age;
     let adjustedValue = value;
 
-    if (!isStructural) {
+    if (!isStructural && !forDisplay) {
         // FORMULA: Performance metrics adjusted to Age-12 baseline via AAF
+        // Use explosive (8.5%) for vertical jump, 6% standard for others
+        const rate = metricKey.toLowerCase() === 'verticaljump' ? 0.085 : GROWTH_COEFFICIENT;
         if (isInverse) {
-            adjustedValue = value * (1 - (ageDiff * GROWTH_COEFFICIENT));
+            adjustedValue = value * (1 - (ageDiff * rate));
         } else {
-            adjustedValue = value * (1 + (ageDiff * GROWTH_COEFFICIENT));
+            adjustedValue = value * (1 + (ageDiff * rate));
         }
     }
 
     const allNorms = getNormativeData();
     const parentSport = resolveParentSport(sport);
 
-    // Structural metrics (or forDisplay mode): compare against child's actual age group (peer-relative)
-    // Performance metrics (standard): compare against Age-12 baseline table (after AAF adjustment)
+    // Structural metrics: compare against child's actual age group
+    // Performance metrics: compare against Age-12 baseline
     const lookupAge = (isStructural || forDisplay) ? getAgeGroup(age).toString() : baselineAge;
     const norms = allNorms[parentSport]?.[gender]?.[lookupAge]?.[metricKey];
 
     if (!norms) return { percentile: 50, zScore: 0, eliteValue: 0 };
 
-    // Detect if data is stored Descending (p10 > p90) or Ascending (p10 < p90)
+    // 1. Determine the "Elite Benchmark"
+    // For performance, Elite = p90 or p10 (depending on which is better)
+    // For structural, Elite = p50 (The "Ideal"/Median for that sport)
     const dataIsDescending = norms.p10 > norms.p90;
+    let eliteValue = isInverse
+        ? (dataIsDescending ? norms.p90 : norms.p10) // e.g. lower time is better
+        : (dataIsDescending ? norms.p10 : norms.p90); // e.g. higher jump is better
 
-    const bps = [
-        { p: 0, v: dataIsDescending ? norms.p10 * 1.5 : norms.p10 * 0.5 },
-        { p: 10, v: norms.p10 },
-        { p: 25, v: norms.p25 },
-        { p: 50, v: norms.p50 },
-        { p: 75, v: norms.p75 },
-        { p: 90, v: norms.p90 },
-        { p: 100, v: dataIsDescending ? norms.p90 * 0.5 : norms.p90 * 1.5 },
-    ];
+    if (isStructural) eliteValue = norms.p50;
 
-    let percentile = 50;
-    let found = false;
-    for (let i = 0; i < bps.length - 1; i++) {
-        const low = bps[i];
-        const high = bps[i + 1];
+    // 2. Calculate Comparison Score (0-100)
+    let score = 0;
 
-        // Robust order-agnostic interval check
-        const vMin = Math.min(low.v, high.v);
-        const vMax = Math.max(low.v, high.v);
-
-        if (adjustedValue >= vMin && adjustedValue <= vMax) {
-            // Percentile interpolation
-            const ratio = (low.v === high.v) ? 0 : (adjustedValue - low.v) / (high.v - low.v);
-            percentile = low.p + ratio * (high.p - low.p);
-            found = true;
-            break;
-        }
+    if (isStructural) {
+        // Structural: Proximity to Ideal (p50). Being 25% away from ideal reduces score significantly.
+        const diff = Math.abs(adjustedValue - eliteValue);
+        const ratio = diff / eliteValue;
+        // Formula: Score starts at 100 and drops as you move away from Ideal
+        score = Math.max(0, 100 - (ratio * 150));
+    } else if (isInverse) {
+        // Inverse (Time): Elite / User (e.g. 5s elite / 10s user = 50%)
+        score = (eliteValue / adjustedValue) * 100;
+    } else {
+        // Direct (Strength/Power): User / Elite (e.g. 25cm user / 50cm elite = 50%)
+        score = (adjustedValue / eliteValue) * 100;
     }
 
-    if (!found) {
-        const first = bps[0];
-        const last = bps[bps.length - 1];
-        if (dataIsDescending) {
-            percentile = adjustedValue >= first.v ? 0 : (adjustedValue <= last.v ? 100 : 50);
-        } else {
-            percentile = adjustedValue <= first.v ? 0 : (adjustedValue >= last.v ? 100 : 50);
-        }
-    }
+    // Clamp score for the UI
+    const finalPercentile = Math.round(Math.min(100, Math.max(0, score)));
 
-    // CRITICAL: If metric is inverse BUT data is stored ascending (e.g. BMI, Weight in endurance), 
-    // the calculated percentile must be inverted to reflect "lower = better".
-    // If data is already stored descending (e.g. tTest, Sprint), no inversion is needed as raw percentile is correct.
-    if (isInverse && !dataIsDescending) {
-        percentile = 100 - percentile;
-    }
-
-    // zScore using adjusted value
-    const sd = Math.abs((norms.p75 - norms.p25) / 1.35);
-    let zScore = sd !== 0 ? (adjustedValue - norms.p50) / sd : 0;
+    // 3. Keep zScore for talent identification logic (still based on population)
+    const sd = Math.max(0.1, Math.abs((norms.p75 - norms.p25) / 1.35));
+    let zScore = (adjustedValue - norms.p50) / sd;
     if (isInverse) zScore = -zScore;
+    if (isStructural) zScore = -Math.abs(zScore);
 
-    // eliteValue is the "best" value peers can achieve:
-    // Correctly handles both inverted and direct data ordering
-    const eliteValue = isInverse
-        ? (dataIsDescending ? norms.p90 : norms.p10)
-        : (dataIsDescending ? norms.p10 : norms.p90);
-    return { percentile, zScore, eliteValue };
+    return { percentile: finalPercentile, zScore, eliteValue };
 };
 
 export const getRating = (percentile: number): Rating => {
     if (percentile >= 90) return 'Elite Potential';
-    if (percentile >= 75) return 'Excellent';
-    if (percentile >= 50) return 'Above Average';
-    if (percentile >= 25) return 'Average';
+    if (percentile >= 80) return 'Excellent';
+    if (percentile >= 60) return 'Above Average';
+    if (percentile >= 40) return 'Average';
     return 'Below Average';
 };
 
@@ -333,8 +308,8 @@ export const runAssessment = (data: FormData): AssessmentResult => {
 
     const results: MetricResult[] = metricsList.map(m => {
         const val = (dataWithBmi as unknown as Record<string, unknown>)[m.key] as number;
-        // forDisplay=true: structural metrics use peer-relative age norms, no sport inversion
-        const stats = calculateMetricStats(val, m.key, primarySport, data.gender, age);
+        // forDisplay=true ensures the 'eliteValue' returned is for the athlete's ACTUAL age (U10 etc)
+        const stats = calculateMetricStats(val, m.key, primarySport, data.gender, age, true);
         return {
             metric: m.label,
             value: val,

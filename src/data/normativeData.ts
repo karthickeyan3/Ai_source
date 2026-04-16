@@ -32,7 +32,8 @@ const initializeAllSports = () => {
                 const a = age.toString();
                 const ageDiff = age - 14;
                 const growFrom14 = 1 + (ageDiff * 0.025); // Physical size growth (2.5%/yr)
-                const perfGrow = 1 + (ageDiff * 0.06);     // Performance growth (6%/yr)
+                const perfGrow = 1 + (ageDiff * 0.06);     // Standard performance growth (6%/yr)
+                const explosiveGrow = 1 + (ageDiff * 0.085); // Explosive growth (Vertical Jump) (8.5%/yr)
                 const invPerfGrow = 1 - (ageDiff * 0.06);  // Inverse performance (slower when younger)
 
                 // Initialize the age object
@@ -62,12 +63,12 @@ const initializeAllSports = () => {
                 normativeData[sport][g][a].height = scaleBp(anchor.height, growFrom14);
                 normativeData[sport][g][a].weight = scaleBp(anchor.weight, growFrom14);
 
-                // --- 2. BMI (Physiologically accurate: scale by weight_growth / height_growth²) ---
-                const bmiScale = growFrom14 / (growFrom14 * growFrom14); // = 1 / growFrom14
+                // --- 2. BMI (Physiologically accurate: BMI increases with age in this range) ---
+                const bmiScale = growFrom14; 
                 normativeData[sport][g][a].bmi = scaleBpFloat(anchor.bmi, bmiScale, 1);
 
                 // --- 3. Performance Metrics (scaled by perfGrow/invPerfGrow directly from anchor) ---
-                normativeData[sport][g][a].verticalJump = scaleBp(anchor.verticalJump, perfGrow);
+                normativeData[sport][g][a].verticalJump = scaleBp(anchor.verticalJump, explosiveGrow);
                 normativeData[sport][g][a].plankTest = scaleBp(anchor.plankTest, perfGrow);
                 normativeData[sport][g][a].sitAndReach = scaleBp(anchor.sitAndReach, perfGrow);
 

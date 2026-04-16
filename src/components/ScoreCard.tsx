@@ -38,39 +38,32 @@ export const ScoreCard = ({ result, onSportSelect, actions }: ScoreCardProps) =>
                 <div className={`${styles.card} ${styles.summaryCard}`} style={{ minWidth: 0 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                            <div style={{
-                                background: '#111827',
-                                color: '#AAFF00',
-                                padding: '12px 20px',
-                                borderRadius: '16px',
-                                textAlign: 'center',
-                                border: '1px solid rgba(170, 255, 0, 0.2)',
-                                boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
-                            }}>
-                                <div style={{ fontSize: '1.75rem', fontWeight: 950, lineHeight: 1 }}>{result.overallScore}</div>
-                                <div style={{ fontSize: '0.6rem', fontWeight: 900, color: '#fff', marginTop: 2 }}>SCORE</div>
-                            </div>
                             <div>
                                 <h3 style={{ margin: 0, fontSize: '1.65rem', fontWeight: 900, color: '#111827' }}>{result.athleteName}</h3>
-                                <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginTop: '6px' }}>
-                                    <p style={{ color: '#6b7280', fontSize: '1rem', margin: 0 }}>
-                                        <span style={{ color: '#AAFF00', fontWeight: 800 }}>Age:</span> {result.age} •
-                                        <span style={{ color: '#AAFF00', fontWeight: 800 }}> {result.gender}</span>
-                                    </p>
-                                    <span style={{
-                                        fontSize: '0.7rem',
-                                        background: (result.overallRating === 'Elite Potential' || result.overallRating === 'Excellent') ? '#16a34a' :
-                                            (result.overallRating === 'Below Average') ? '#dc2626' :
-                                                (result.overallRating === 'Above Average') ? '#ca8a04' : '#f3f4f6',
-                                        color: '#fff',
-                                        padding: '4px 10px',
-                                        borderRadius: '6px',
-                                        fontWeight: 900,
-                                        textTransform: 'uppercase'
-                                    }}>
-                                        {result.overallRating}
-                                    </span>
-                                </div>
+                                <ul style={{ listStyleType: 'none', padding: 0, margin: '10px 0 0 0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <li style={{ color: '#6b7280', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <span style={{ color: '#AAFF00', fontWeight: 800 }}>Age:</span> {result.age}
+                                    </li>
+                                    <li style={{ color: '#6b7280', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <span style={{ color: '#AAFF00', fontWeight: 800 }}>Gender:</span> {result.gender}
+                                    </li>
+                                    <li style={{ color: '#6b7280', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <span style={{ color: '#AAFF00', fontWeight: 800 }}>Performance:</span>
+                                        <span style={{
+                                            fontSize: '0.75rem',
+                                            background: (result.overallRating === 'Elite Potential' || result.overallRating === 'Excellent') ? '#16a34a' :
+                                                (result.overallRating === 'Below Average') ? '#dc2626' :
+                                                    (result.overallRating === 'Above Average') ? '#ca8a04' : '#9ca3af',
+                                            color: '#fff',
+                                            padding: '4px 10px',
+                                            borderRadius: '6px',
+                                            fontWeight: 900,
+                                            textTransform: 'uppercase'
+                                        }}>
+                                            {result.overallRating}
+                                        </span>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
@@ -195,7 +188,7 @@ export const ScoreCard = ({ result, onSportSelect, actions }: ScoreCardProps) =>
                     </div>
                 </div>
             </div>
-
+            
         </div>
     );
 };

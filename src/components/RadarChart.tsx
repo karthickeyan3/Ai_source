@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import type { MetricResult, Gender } from '../types';
-import { calculateMetricStats } from '../utils/percentileEngine';
+import { getRatingColor } from '../utils/colorUtils';
+
 import styles from '../App.module.css';
 
 // ── Toggle this to show/hide the comparison table globally ──
@@ -32,7 +33,7 @@ const CustomTooltip = ({ active, payload }: any) => {
                 <p style={{ margin: '0 0 10px 0', fontWeight: 900, color: '#AAFF00', textTransform: 'uppercase', letterSpacing: 1, textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '6px' }}>{d.subject}</p>
                 <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', gap: '15px' }}>
                     <div style={{ textAlign: 'center' }}>
-                        <div style={{ color: '#22c55e', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '2px' }}>ELITE{d.eliteLabel ? ` ${d.eliteLabel}` : ''}</div>
+                        <div style={{ color: '#22c55e', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '2px' }}>ELITE</div>
                         <div style={{ fontWeight: 800, fontSize: '1rem', color: '#AAFF00' }}>{d.rawElite} <span style={{ fontSize: '0.7rem', color: '#166534' }}>{d.unit}</span></div>
                     </div>
                     <div style={{ width: '1px', height: '25px', background: 'rgba(255,255,255,0.1)' }}></div>
@@ -47,73 +48,65 @@ const CustomTooltip = ({ active, payload }: any) => {
     return null;
 };
 
+import { runAssessment } from '../utils/percentileEngine';
+
 export const PerformanceRadar = ({ metrics, age, gender, sport = 'Basketball', athleteName = 'Athlete' }: RadarChartProps) => {
+    // 1. Recalculate metrics for the newly selected sport
+    // This allows the user to click recommended sports and see how they compare vs different benchmarks
+    const results = useMemo(() => {
+        // Reconstruct the raw data from the existing metrics
+        const rawData: any = { name: athleteName, age, gender, sport };
+        metrics.forEach(m => {
+            // Find the original key for the engine
+            const config = [
+                { key: 'height', label: 'Height' },
+                { key: 'weight', label: 'Weight' },
+                { key: 'reactionTime', label: 'Reaction Speed' },
+                { key: 'responseTime', label: 'Response Time' },
+                { key: 'bmi', label: 'Fitness Shape' },
+                { key: 'sprint40m', label: 'Sprint Speed (40m)' },
+                { key: 'verticalJump', label: 'Explosive Power' },
+                { key: 'tTest', label: 'Agility (T-Test)' },
+                { key: 'plankTest', label: 'Core Strength' },
+                { key: 'sitAndReach', label: 'Flexibility' }
+            ];
+            const item = config.find(c => c.label === m.metric);
+            if (item) rawData[item.key] = m.value;
+        });
+
+        return runAssessment(rawData);
+    }, [metrics, age, gender, sport, athleteName]);
+
     // Select specific metrics for the radar axes
     const selectedMapping = [
-        { label: 'Reaction Time', key: 'reactionTime' },
+        { label: 'Reaction Speed', key: 'reactionTime' },
         { label: 'Response Time', key: 'responseTime' },
-        { label: 'BMI', key: 'bmi' },
-        { label: '40m Sprint', key: 'sprint40m' },
-        { label: 'Vertical Jump', key: 'verticalJump' },
-        { label: 'T-Test', key: 'tTest' },
-        { label: 'Plank Test', key: 'plankTest' },
-        { label: 'Sit & Reach', key: 'sitAndReach' }
+        { label: 'Fitness Shape', key: 'bmi' },
+        { label: 'Sprint Speed (40m)', key: 'sprint40m' },
+        { label: 'Explosive Power', key: 'verticalJump' },
+        { label: 'Agility (T-Test)', key: 'tTest' },
+        { label: 'Core Strength', key: 'plankTest' },
+        { label: 'Flexibility', key: 'sitAndReach' }
     ];
 
     const radarData = useMemo(() => {
         return selectedMapping.map(item => {
-            const m = metrics.find(x => x.metric === item.label);
-            if (!m) return { subject: item.label, athlete: 0, elite: 100, rawAthlete: 0, rawElite: 0, unit: '' };
-
-            // Dynamic recalculation based on current sport selection.
-            // For all metrics use forDisplay=true (peer-relative).
-            // BMI position is calculated separately using a direct ratio (see below).
-            const stats = calculateMetricStats(m.value, item.key, sport, gender, age, true);
-
-            // Normalize so Elite is always 100 on the graph.
-            //
-            // BMI — bidirectional ratio (peaks AT the elite lean value):
-            //   • Athlete BELOW elite (underweight): score = athleteBMI / eliteBMI × 100
-            //     e.g. 16.4 / 23.1 × 100 = 71%  → does NOT reach edge ✓
-            //   • Athlete AT elite lean:            score = 100% → at edge ✓
-            //   • Athlete ABOVE elite (too heavy):  score = eliteBMI / athleteBMI × 100
-            //     e.g. 23.1 / 30   × 100 = 77%  → does NOT reach edge ✓
-            //   This ensures ONLY an athlete with a BMI matching the elite lean benchmark
-            //   reaches the outer ring. Being underweight OR overweight both score lower.
-            //
-            // For all other inverse metrics (sprint, tTest, reactionTime, responseTime):
-            //   Elite value = p90 (fastest/best), ratio = eliteValue / athleteValue × 100
-            //
-            // For normal metrics (higher=better):
-            //   ratio = athleteValue / eliteValue × 100
-            let athletePos = 0;
-            if (item.key === 'bmi') {
-                const eliteBMI = stats.eliteValue; // leanest peer benchmark (p10 of norms)
-                if (eliteBMI > 0) {
-                    athletePos = m.value <= eliteBMI
-                        ? (m.value / eliteBMI) * 100        // underweight → score rises toward elite
-                        : (eliteBMI / m.value) * 100;       // overweight  → score falls away from elite
-                }
-            } else if (m.isInverse) {
-                // Inverse: eliteValue = p90 (fastest time / smallest waist)
-                athletePos = (stats.eliteValue / m.value) * 100;
-            } else {
-                // Normal: eliteValue = p90 (highest jump / longest reach)
-                athletePos = (m.value / stats.eliteValue) * 100;
-            }
+            const m = results.metrics.find(x => x.metric === item.label);
+            if (!m) return { subject: item.label, athlete: 0, elite: 100, rawAthlete: '0', rawElite: '0', unit: '' };
 
             return {
                 subject: item.label,
-                athlete: Math.min(100, Math.max(0, athletePos)),
+                athlete: m.percentile,
                 elite: 100,
-                rawAthlete: m.unit === 's' ? m.value.toFixed(2) : m.value.toFixed(1),
-                // For BMI, elite is the leanest value (p10). Show it clearly.
-                rawElite: m.unit === 's' ? stats.eliteValue.toFixed(2) : stats.eliteValue.toFixed(1),
-                eliteLabel: item.key === 'bmi' ? '(Lean)' : '',
-                unit: m.unit
+                ratingColor: getRatingColor(m.rating),
+                rawAthlete: m.unit === 's' ? m.value.toFixed(2) : (m.unit === 'cm' || m.unit === 'kg/m²' ? m.value.toFixed(1) : m.value.toString()),
+                rawElite: m.unit === 's' ? m.eliteValue.toFixed(2) : (m.unit === 'cm' || m.unit === 'kg/m²' ? m.eliteValue.toFixed(1) : m.eliteValue.toString()),
+                unit: m.unit,
+                rating: m.rating,
+                ratingColorRaw: getRatingColor(m.rating) // Added for table use
             };
         });
-    }, [metrics, sport, gender, age]);
+    }, [results]);
 
     return (
         <div className={styles.card} style={{ display: 'flex', flexDirection: 'column' }}>
@@ -187,38 +180,37 @@ export const PerformanceRadar = ({ metrics, age, gender, sport = 'Basketball', a
                             padding: '12px 16px',
                             borderBottom: '2px solid #e5e7eb',
                             fontSize: '0.75rem',
-                            fontWeight: 800,
+                            fontWeight: 900,
                             color: '#111827',
                             textTransform: 'uppercase',
                             letterSpacing: '1px'
                         }}>
-                            <span>Metric</span>
-                            <div style={{ textAlign: 'center', color: '#16a34a', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>
-                                ELITE
-                                <span style={{ fontSize: '0.6rem', color: '#6b7280', textTransform: 'lowercase', fontWeight: 700, marginTop: '4px' }}>under age ({age})</span>
-                            </div>
-                            <span style={{ textAlign: 'center', color: '#111827', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{athleteName}</span>
+                            <span>Test Name</span>
+                            <span style={{ textAlign: 'center', color: '#16a34a' }}>Elite Benchmark (U{age})</span>
+                            <span style={{ textAlign: 'center' }}>Your Score</span>
                         </div>
-                        {radarData.map((d, i) => (
-                            <div key={i} style={{
-                                display: 'grid',
-                                gridTemplateColumns: '1.5fr 1fr 1fr',
-                                padding: '10px 16px',
-                                borderBottom: i < radarData.length - 1 ? '1px solid #f3f4f6' : 'none',
-                                background: i % 2 === 0 ? '#fff' : '#fafbfc',
-                                alignItems: 'center'
-                            }}>
-                                <span style={{ fontWeight: 800, color: '#111827', fontSize: '0.85rem' }}>
-                                    {d.subject}
-                                </span>
-                                <span style={{ textAlign: 'center', fontWeight: 900, color: '#16a34a', fontSize: '0.85rem' }}>
-                                    {d.rawElite} <span style={{ fontSize: '0.65rem', color: '#86efac', fontWeight: 700 }}>{d.unit}</span>
-                                </span>
-                                <span style={{ textAlign: 'center', fontWeight: 900, color: '#111827', fontSize: '0.85rem' }}>
-                                    {d.rawAthlete} <span style={{ fontSize: '0.65rem', color: '#9ca3af', fontWeight: 700 }}>{d.unit}</span>
-                                </span>
-                            </div>
-                        ))}
+                        {radarData.map((d, i) => {
+                            return (
+                                <div key={i} style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: '1.5fr 1fr 1fr',
+                                    padding: '10px 16px',
+                                    borderBottom: i < radarData.length - 1 ? '1px solid #f3f4f6' : 'none',
+                                    background: i % 2 === 0 ? '#fff' : '#fafbfc',
+                                    alignItems: 'center'
+                                }}>
+                                    <span style={{ fontWeight: 800, color: '#111827', fontSize: '0.85rem' }}>
+                                        {d.subject}
+                                    </span>
+                                    <span style={{ textAlign: 'center', fontWeight: 900, color: '#16a34a', fontSize: '0.85rem' }}>
+                                        {d.rawElite} <span style={{ fontSize: '0.65rem', color: '#86efac', fontWeight: 700 }}>{d.unit}</span>
+                                    </span>
+                                    <span style={{ textAlign: 'center', fontWeight: 900, color: d.ratingColor, fontSize: '0.85rem' }}>
+                                        {d.rawAthlete} <span style={{ fontSize: '0.65rem', color: '#9ca3af', fontWeight: 700 }}>{d.unit}</span>
+                                    </span>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
             )}
