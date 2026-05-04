@@ -36,29 +36,26 @@ export const ScoreCard = ({ result, onSportSelect, actions }: ScoreCardProps) =>
         <div style={{ width: '100%', marginBottom: '32px' }}>
             <div className={styles.scoreGrid}>
                 <div className={`${styles.card} ${styles.summaryCard}`} style={{ minWidth: 0 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                    <div className={styles.scoreCardHeader}>
+                        <div className={styles.athleteInfoGroup}>
                             <div>
-                                <h3 style={{ margin: 0, fontSize: '1.65rem', fontWeight: 900, color: '#111827' }}>{result.athleteName}</h3>
-                                <ul style={{ listStyleType: 'none', padding: 0, margin: '10px 0 0 0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                    <li style={{ color: '#6b7280', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <span style={{ color: '#AAFF00', fontWeight: 800 }}>Age:</span> {result.age}
+                                <h3 className={styles.athleteNameDisplay}>
+                                    <span className={styles.overallScoreBadge}>{result.overallScore}%</span>
+                                    {result.athleteName}
+                                </h3>
+                                <ul className={styles.athleteDetailsList}>
+                                    <li className={styles.athleteDetailItem}>
+                                        <span className={styles.detailLabel}>Age:</span> {result.age}
                                     </li>
-                                    <li style={{ color: '#6b7280', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <span style={{ color: '#AAFF00', fontWeight: 800 }}>Gender:</span> {result.gender}
+                                    <li className={styles.athleteDetailItem}>
+                                        <span className={styles.detailLabel}>Gender:</span> {result.gender}
                                     </li>
-                                    <li style={{ color: '#6b7280', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <span style={{ color: '#AAFF00', fontWeight: 800 }}>Performance:</span>
-                                        <span style={{
-                                            fontSize: '0.75rem',
+                                    <li className={styles.athleteDetailItem}>
+                                        <span className={styles.detailLabel}>Performance:</span>
+                                        <span className={styles.ratingBadgeFinal} style={{
                                             background: (result.overallRating === 'Elite Potential' || result.overallRating === 'Excellent') ? '#16a34a' :
                                                 (result.overallRating === 'Below Average') ? '#dc2626' :
                                                     (result.overallRating === 'Above Average') ? '#ca8a04' : '#9ca3af',
-                                            color: '#fff',
-                                            padding: '4px 10px',
-                                            borderRadius: '6px',
-                                            fontWeight: 900,
-                                            textTransform: 'uppercase'
                                         }}>
                                             {result.overallRating}
                                         </span>
@@ -66,29 +63,29 @@ export const ScoreCard = ({ result, onSportSelect, actions }: ScoreCardProps) =>
                                 </ul>
                             </div>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                        <div className={styles.scoreActions}>
                             {actions}
                         </div>
 
                     </div>
 
                     <div className={styles.summaryContent}>
-                        <div style={{ background: '#f9fafb', padding: '20px', borderRadius: '14px', border: '1px solid #f3f4f6' }}>
-                            <h5 style={{ color: '#000', fontSize: '0.85rem', marginBottom: '12px', letterSpacing: 1.5, fontWeight: 900, textTransform: 'uppercase' }}>CORE STRENGTHS</h5>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-start' }}>
+                        <div className={styles.summaryColumn}>
+                            <h5 className={styles.summaryColumnTitle}>CORE STRENGTHS</h5>
+                            <div className={styles.pillContainer}>
                                 {result.strengths.slice(0, 5).map((s, i) => (
-                                    <div key={i} className={styles.metricPill} style={{ margin: 0, padding: '6px 14px', fontSize: '0.9rem', fontWeight: 800, color: '#111827' }}>
-                                        {s.metric} <span style={{ color: '#16a34a', fontWeight: 900 }}>{s.percentile}%</span>
+                                    <div key={i} className={styles.metricPillLarge}>
+                                        {s.metric} <span className={styles.pillValuePositive}>{s.percentile}%</span>
                                     </div>
                                 ))}
                             </div>
                         </div>
-                        <div style={{ background: '#f9fafb', padding: '20px', borderRadius: '14px', border: '1px solid #f3f4f6' }}>
-                            <h5 style={{ color: '#000', fontSize: '0.85rem', marginBottom: '12px', letterSpacing: 1.5, fontWeight: 900, textTransform: 'uppercase' }}>GROWTH AREAS</h5>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-start' }}>
+                        <div className={styles.summaryColumn}>
+                            <h5 className={styles.summaryColumnTitle}>GROWTH AREAS</h5>
+                            <div className={styles.pillContainer}>
                                 {growthAreasToDisplay.map((s, i) => (
-                                    <div key={i} className={styles.metricPill} style={{ margin: 0, padding: '6px 14px', fontSize: '0.9rem', fontWeight: 800, color: '#111827' }}>
-                                        {s.metric} <span style={{ color: getGrowthColor(s.percentile), fontWeight: 900 }}>{s.percentile}%</span>
+                                    <div key={i} className={styles.metricPillLarge}>
+                                        {s.metric} <span className={styles.pillValueNormal} style={{ color: getGrowthColor(s.percentile) }}>{s.percentile}%</span>
                                     </div>
                                 ))}
                             </div>
@@ -97,7 +94,7 @@ export const ScoreCard = ({ result, onSportSelect, actions }: ScoreCardProps) =>
                 </div>
 
                 <div className={styles.card} style={{ minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-                    <h5 style={{ color: '#111827', fontSize: '0.85rem', marginBottom: '20px', letterSpacing: 1.5, fontWeight: 900, display: 'flex', alignItems: 'center', gap: '10px', textTransform: 'uppercase' }}>
+                    <h5 className={styles.recoSportsTitle}>
                         <Crosshair size={16} color="#AAFF00" /> TOP THREE RECOMMENDED SPORTS
                     </h5>
 

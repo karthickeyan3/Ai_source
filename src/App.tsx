@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from 'react'
 import type { AssessmentResult, FormData, Sport, MetricResult } from './types'
-import { runAssessment } from './utils/percentileEngine'
+import { runAssessment, recalculateMetricsForSport } from './utils/percentileEngine'
 import { AssessmentFormPage } from './pages/AssessmentFormPage'
 import { RankingsTable } from './components/RankingsTable'
 import { ScoreCard } from './components/ScoreCard'
@@ -86,6 +86,17 @@ function App() {
   const uniqueSports = useMemo<string[]>(() => {
     return ['All', ...Array.from(new Set(bulkResults.map((r: AssessmentResult) => r.sport)))];
   }, [bulkResults]);
+
+  const comparisonMetrics = useMemo(() => {
+    if (!assessmentResult) return [];
+    const sportToUse = activeSport || assessmentResult.sport;
+    return recalculateMetricsForSport(
+      assessmentResult.metrics,
+      sportToUse,
+      assessmentResult.gender,
+      assessmentResult.age
+    );
+  }, [assessmentResult, activeSport]);
 
   const handleLandingStart = (view: 'single' | 'bulk' | 'admin') => {
     setAppView(view === 'single' ? 'assessment' : (view === 'bulk' ? 'bulk' : 'admin'));
@@ -250,15 +261,24 @@ function App() {
                   </button>
                 }
               />
-              <div className="report-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginBottom: '40px' }}>
-                <PerformanceRadar
-                  metrics={assessmentResult.metrics}
-                  age={assessmentResult.age}
-                  gender={assessmentResult.gender}
+              <div className={styles.chartsRowGrid} style={{ marginTop: '32px' }}>
+                {assessmentResult.recommendedSports.slice(0, 3).map((reco, idx) => (
+                  <PerformanceRadar
+                    key={`${reco.sport}-${idx}`}
+                    metrics={assessmentResult.metrics}
+                    age={assessmentResult.age}
+                    gender={assessmentResult.gender}
+                    sport={reco.sport}
+                    athleteName={assessmentResult.athleteName}
+                  />
+                ))}
+              </div>
+
+              <div style={{ marginTop: '80px', marginBottom: '60px' }}>
+                <RankingsTable
+                  metrics={comparisonMetrics}
                   sport={activeSport || assessmentResult.sport}
-                  athleteName={assessmentResult.athleteName}
                 />
-                <RankingsTable metrics={assessmentResult.metrics} />
               </div>
             </div>
           </div>
@@ -362,7 +382,10 @@ function App() {
                         {filteredBulkResults.map((result: AssessmentResult, idx: number) => (
                           <tr key={idx} onClick={() => { setPreviousView('bulk'); setAssessmentResult(result); setAppView('dashboard'); scrollToTop(); }} style={{ cursor: 'pointer' }}>
                             <td style={{ fontWeight: 800, color: '#9ca3af', width: '50px', textAlign: 'center' }}>#{idx + 1}</td>
-                            <td className={styles.metricName} style={{ textAlign: 'left' }}>{result.athleteName}</td>
+                            <td className={styles.metricName} style={{ textAlign: 'left', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span className={styles.overallScoreBadge} style={{ fontSize: '0.7rem', padding: '2px 6px', minWidth: '40px' }}>{result.overallScore}%</span>
+                              {result.athleteName}
+                            </td>
                             <td style={{ fontWeight: 700, color: '#6b7280', textAlign: 'center' }}>{result.age}</td>
                             <td style={{ fontWeight: 800, color: '#3b82f6', textAlign: 'center' }}>{result.sport}</td>
                             <td className={styles.percentile} style={{ textAlign: 'center' }}>{result.overallScore}%</td>

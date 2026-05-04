@@ -6,7 +6,7 @@ import { getRatingColor } from '../utils/colorUtils';
 import styles from '../App.module.css';
 
 // ── Toggle this to show/hide the comparison table globally ──
-export const SHOW_COMPARISON_TABLE = true;
+export const SHOW_COMPARISON_TABLE = false;
 
 interface RadarChartProps {
     metrics: MetricResult[];
@@ -49,6 +49,45 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 import { runAssessment } from '../utils/percentileEngine';
+
+const CustomAxisTick = ({ x, y, payload, textAnchor }: any) => {
+    if (!payload || !payload.value) return null;
+    const text: string = payload.value;
+    const words = text.split(' ');
+
+    // Calculate a small offset to push text away from the chart points
+    // Recharts textAnchor tells us which side we're on
+    const xOffset = textAnchor === 'end' ? -10 : (textAnchor === 'start' ? 10 : 0);
+    const yOffset = y < 100 ? -12 : (y > 300 ? 15 : 0);
+
+    if (words.length <= 1) {
+        return (
+            <text x={x + xOffset} y={y + yOffset} textAnchor={textAnchor} fill="#111827" fontSize={11} fontWeight={800}>
+                {text}
+            </text>
+        );
+    }
+
+    let line1, line2;
+    if (text.includes('(')) {
+        const splitIdx = text.indexOf('(');
+        line1 = text.substring(0, splitIdx).trim();
+        line2 = text.substring(splitIdx).trim();
+    } else {
+        const mid = Math.ceil(words.length / 2);
+        line1 = words.slice(0, mid).join(' ');
+        line2 = words.slice(mid).join(' ');
+    }
+
+    return (
+        <g transform={`translate(${x + xOffset},${y + yOffset})`}>
+            <text x={0} y={0} textAnchor={textAnchor} fill="#111827" fontSize={10} fontWeight={800}>
+                <tspan x={0} dy="-0.1em">{line1}</tspan>
+                <tspan x={0} dy="1.2em">{line2}</tspan>
+            </text>
+        </g>
+    );
+};
 
 export const PerformanceRadar = ({ metrics, age, gender, sport = 'Basketball', athleteName = 'Athlete' }: RadarChartProps) => {
     // 1. Recalculate metrics for the newly selected sport
@@ -114,11 +153,11 @@ export const PerformanceRadar = ({ metrics, age, gender, sport = 'Basketball', a
 
             <div className={`${styles.chartContainer} chart-container-capture`}>
                 <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData} margin={{ top: 10, right: 30, bottom: 10, left: 30 }}>
+                    <RadarChart cx="50%" cy="50%" outerRadius="65%" data={radarData} margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
                         <PolarGrid stroke="#e5e7eb" />
                         <PolarAngleAxis
                             dataKey="subject"
-                            tick={{ fill: '#111827', fontSize: 13, fontWeight: 800 }}
+                            tick={<CustomAxisTick />}
                         />
                         <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
                         <Tooltip content={<CustomTooltip />} />
@@ -143,23 +182,16 @@ export const PerformanceRadar = ({ metrics, age, gender, sport = 'Basketball', a
             </div>
 
             {/* Custom Legend */}
-            <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px',
-                alignItems: 'center',
-                paddingBottom: '20px',
-                marginTop: '0px'
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: '180px' }}>
-                    <div style={{ width: '15px', height: '15px', background: '#16a34a', borderRadius: '2px' }}></div>
-                    <span style={{ fontSize: '0.9rem', fontWeight: 900, color: '#16a34a', textTransform: 'uppercase', letterSpacing: 1.5 }}>
+            <div className={styles.chartLegend}>
+                <div className={styles.legendItem}>
+                    <div className={styles.legendBox} style={{ background: '#16a34a' }}></div>
+                    <span className={styles.legendText} style={{ color: '#16a34a' }}>
                         {sport} ELITE
                     </span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: '180px' }}>
-                    <div style={{ width: '15px', height: '15px', background: '#111827', borderRadius: '2px' }}></div>
-                    <span style={{ fontSize: '0.9rem', fontWeight: 900, color: '#111827', textTransform: 'uppercase', letterSpacing: 1.5 }}>
+                <div className={styles.legendItem}>
+                    <div className={styles.legendBox} style={{ background: '#111827' }}></div>
+                    <span className={styles.legendText} style={{ color: '#111827' }}>
                         {athleteName} SCORE
                     </span>
                 </div>

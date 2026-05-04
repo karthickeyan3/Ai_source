@@ -18,7 +18,7 @@ const INVERSE_METRICS = [
 
 const GROWTH_COEFFICIENT = 0.06; // 5-8% annual improvement during puberty
 
-const metricsList = [
+export const metricsList = [
     { key: 'verticalJump', label: 'Explosive Power', unit: 'cm' },
     { key: 'sitAndReach', label: 'Flexibility', unit: 'cm' },
     { key: 'plankTest', label: 'Core Strength', unit: 's' },
@@ -353,4 +353,23 @@ export const runAssessment = (data: FormData): AssessmentResult => {
             `Monitor your ${bodyComp.growthStatus.toLowerCase()} stage as you approach your peak developmental window around age ${talentId.peakAge.toFixed(1)}.`
         ]
     };
+};
+export const recalculateMetricsForSport = (
+    metrics: MetricResult[],
+    newSport: string,
+    gender: Gender,
+    age: number
+): MetricResult[] => {
+    return metrics.map(m => {
+        const metricObj = metricsList.find(ml => ml.label === m.metric);
+        if (!metricObj) return m;
+
+        const stats = calculateMetricStats(m.value, metricObj.key, newSport, gender, age, true);
+        return {
+            ...m,
+            eliteValue: stats.eliteValue,
+            percentile: Math.round(stats.percentile),
+            rating: getRating(stats.percentile)
+        };
+    });
 };
