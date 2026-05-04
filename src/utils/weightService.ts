@@ -20,7 +20,11 @@ const STORAGE_KEY = 'srs_sport_weights';
 const DEFAULT_WEIGHTS: Record<string, SportConfig> = {
     'Basketball': {
         name: 'Basketball',
-        weights: { speed: 18, agility: 25, power: 15, endurance: 10, strength: 10, flexibility: 10, jumping: 12 }
+        weights: { speed: 18, agility: 27, power: 15, endurance: 25, strength: 10, flexibility: 5, jumping: 0 }
+    },
+    'Handball': {
+        name: 'Handball',
+        weights: { speed: 18, agility: 23, power: 15, endurance: 28, strength: 12, flexibility: 4, jumping: 0 }
     },
     'Cricket': {
         name: 'Cricket',
@@ -28,7 +32,7 @@ const DEFAULT_WEIGHTS: Record<string, SportConfig> = {
     },
     'Tennis': {
         name: 'Tennis',
-        weights: { speed: 15, agility: 20, power: 15, endurance: 15, strength: 10, flexibility: 15, jumping: 10 }
+        weights: { speed: 20, agility: 26, power: 12, endurance: 28, strength: 8, flexibility: 4, jumping: 2 }
     },
     'Swimming - Sprint (50m/100m)': {
         name: 'Swimming - Sprint (50m/100m)',
@@ -40,31 +44,31 @@ const DEFAULT_WEIGHTS: Record<string, SportConfig> = {
     },
     'Track & Field - Sprint (100m/200m)': {
         name: 'Track & Field - Sprint (100m/200m)',
-        weights: { speed: 30, agility: 10, power: 25, endurance: 5, strength: 10, flexibility: 10, jumping: 10 }
+        weights: { speed: 35, agility: 13, power: 30, endurance: 10, strength: 10, flexibility: 2, jumping: 0 }
     },
     'Track & Field - Middle Distance (800m/1500m)': {
         name: 'Track & Field - Middle Distance (800m/1500m)',
-        weights: { speed: 15, agility: 10, power: 15, endurance: 30, strength: 10, flexibility: 10, jumping: 10 }
+        weights: { speed: 15, agility: 15, power: 10, endurance: 50, strength: 8, flexibility: 2, jumping: 0 }
     },
     'Track & Field - Long Distance (5K/10K)': {
         name: 'Track & Field - Long Distance (5K/10K)',
-        weights: { speed: 10, agility: 10, power: 10, endurance: 30, strength: 15, flexibility: 15, jumping: 10 }
+        weights: { speed: 10, agility: 11, power: 2, endurance: 70, strength: 5, flexibility: 2, jumping: 0 }
     },
     'Track & Field - High Jump': {
         name: 'Track & Field - High Jump',
-        weights: { speed: 10, agility: 10, power: 25, endurance: 5, strength: 10, flexibility: 15, jumping: 25 }
+        weights: { speed: 20, agility: 15, power: 35, endurance: 10, strength: 10, flexibility: 10, jumping: 0 }
     },
     'Track & Field - Long Jump': {
         name: 'Track & Field - Long Jump',
-        weights: { speed: 25, agility: 10, power: 25, endurance: 5, strength: 10, flexibility: 5, jumping: 20 }
+        weights: { speed: 20, agility: 15, power: 35, endurance: 10, strength: 10, flexibility: 10, jumping: 0 }
     },
     'Track & Field - Triple Jump': {
         name: 'Track & Field - Triple Jump',
-        weights: { speed: 20, agility: 10, power: 25, endurance: 5, strength: 15, flexibility: 5, jumping: 20 }
+        weights: { speed: 20, agility: 15, power: 35, endurance: 10, strength: 10, flexibility: 10, jumping: 0 }
     },
     'Track & Field - Throws (Shot/Discus/Javelin)': {
         name: 'Track & Field - Throws (Shot/Discus/Javelin)',
-        weights: { speed: 10, agility: 5, power: 25, endurance: 10, strength: 30, flexibility: 10, jumping: 10 }
+        weights: { speed: 5, agility: 15, power: 35, endurance: 15, strength: 25, flexibility: 5, jumping: 0 }
     },
     'Gymnastics': {
         name: 'Gymnastics',
@@ -72,7 +76,7 @@ const DEFAULT_WEIGHTS: Record<string, SportConfig> = {
     },
     'Volleyball': {
         name: 'Volleyball',
-        weights: { speed: 15, agility: 20, power: 15, endurance: 15, strength: 10, flexibility: 10, jumping: 15 }
+        weights: { speed: 15, agility: 22, power: 25, endurance: 18, strength: 12, flexibility: 8, jumping: 0 }
     },
     'Cycling': {
         name: 'Cycling',
@@ -84,7 +88,7 @@ const DEFAULT_WEIGHTS: Record<string, SportConfig> = {
     },
     'Soccer': {
         name: 'Soccer',
-        weights: { speed: 20, agility: 20, power: 15, endurance: 15, strength: 10, flexibility: 5, jumping: 15 }
+        weights: { speed: 20, agility: 25, power: 8, endurance: 35, strength: 8, flexibility: 4, jumping: 0 }
     }
 };
 

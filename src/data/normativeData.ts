@@ -9,6 +9,7 @@ export const normativeData: { [key: string]: SportNorms } = {};
 
 const sportsList = [
     'Basketball', 'Soccer', 'Cricket', 'Tennis', 'Swimming', 'Track & Field', 'Gymnastics', 'Volleyball', 'Cycling', 'Rowing',
+    'Handball',
     'Swimming - Sprint (50m/100m)', 'Swimming - Distance (400m/1500m)',
     'Track & Field - Sprint (100m/200m)', 'Track & Field - Middle Distance (800m/1500m)', 'Track & Field - Long Distance (5K/10K)',
     'Track & Field - High Jump', 'Track & Field - Long Jump', 'Track & Field - Triple Jump',
