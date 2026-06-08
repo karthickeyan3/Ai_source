@@ -13,7 +13,8 @@ const sportsList = [
     'Swimming - Sprint (50m/100m)', 'Swimming - Distance (400m/1500m)',
     'Track & Field - Sprint (100m/200m)', 'Track & Field - Middle Distance (800m/1500m)', 'Track & Field - Long Distance (5K/10K)',
     'Track & Field - High Jump', 'Track & Field - Long Jump', 'Track & Field - Triple Jump',
-    'Track & Field - Throws (Shot/Discus/Javelin)'
+    'Track & Field - Throws (Shot/Discus/Javelin)',
+    'Hockey', 'Kabaddi', 'Kho-Kho', 'Wrestling', 'Boxing', 'Judo', 'Taekwondo', 'Fencing', 'Wushu', 'Archery', 'Weightlifting', 'Kayaking'
 ];
 
 const initializeAllSports = () => {
@@ -87,6 +88,14 @@ const initializeAllSports = () => {
                 // Waist and Skinfold — scale with body growth (not flat)
                 normativeData[sport][g][a].waistCircumference = scaleBp(anchor.waistCircumference, growFrom14);
                 normativeData[sport][g][a].skinfold = scaleBp(anchor.skinfold, growFrom14);
+
+                // --- 5. New Assessment Metrics ---
+                // Anatomy: structural/body-type metric — scale with physical growth
+                if (anchor.anatomy) normativeData[sport][g][a].anatomy = scaleBpFloat(anchor.anatomy, growFrom14, 1);
+                // Accuracy, Balance, Coordination: performance metrics — improve with age
+                if (anchor.accuracy) normativeData[sport][g][a].accuracy = scaleBpFloat(anchor.accuracy, perfGrow, 1);
+                if (anchor.balance) normativeData[sport][g][a].balance = scaleBp(anchor.balance, perfGrow);
+                if (anchor.coordination) normativeData[sport][g][a].coordination = scaleBpFloat(anchor.coordination, perfGrow, 1);
             }
         });
     });

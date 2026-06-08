@@ -15,7 +15,11 @@ export const SPORT_ANCHORS_14_PART2: { [key: string]: { Male: any; Female: any }
             tTest: { p10: 13.2, p25: 12.2, p50: 11.4, p75: 10.6, p90: 9.8 },
             reactionTime: { p10: 0.50, p25: 0.40, p50: 0.32, p75: 0.25, p90: 0.18 },
             responseTime: { p10: 0.90, p25: 0.75, p50: 0.62, p75: 0.50, p90: 0.38 },
-            sprint40m: { p10: 7.0, p25: 6.5, p50: 6.0, p75: 5.5, p90: 5.1 }
+            sprint40m: { p10: 7.0, p25: 6.5, p50: 6.0, p75: 5.5, p90: 5.1 },
+            accuracy: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            balance: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            coordination: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            anatomy: { p10: 4, p25: 5, p50: 6, p75: 8, p90: 9 },
         },
         Female: {
             height: { p10: 158, p25: 164, p50: 170, p75: 177, p90: 184 },
@@ -32,7 +36,11 @@ export const SPORT_ANCHORS_14_PART2: { [key: string]: { Male: any; Female: any }
             tTest: { p10: 14.0, p25: 13.0, p50: 12.2, p75: 11.4, p90: 10.6 },
             reactionTime: { p10: 0.55, p25: 0.46, p50: 0.38, p75: 0.30, p90: 0.23 },
             responseTime: { p10: 1.00, p25: 0.85, p50: 0.70, p75: 0.56, p90: 0.44 },
-            sprint40m: { p10: 7.6, p25: 7.0, p50: 6.5, p75: 6.0, p90: 5.6 }
+            sprint40m: { p10: 7.6, p25: 7.0, p50: 6.5, p75: 6.0, p90: 5.6 },
+            accuracy: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            balance: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            coordination: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            anatomy: { p10: 4, p25: 5, p50: 6, p75: 8, p90: 9 },
         }
     }, // checked
 
@@ -52,7 +60,11 @@ export const SPORT_ANCHORS_14_PART2: { [key: string]: { Male: any; Female: any }
             tTest: { p10: 14.2, p25: 13.2, p50: 12.2, p75: 11.5, p90: 10.8 },
             reactionTime: { p10: 0.62, p25: 0.52, p50: 0.44, p75: 0.36, p90: 0.28 },
             responseTime: { p10: 1.10, p25: 0.95, p50: 0.80, p75: 0.65, p90: 0.52 },
-            sprint40m: { p10: 7.4, p25: 6.8, p50: 6.3, p75: 5.8, p90: 5.3 }
+            sprint40m: { p10: 7.4, p25: 6.8, p50: 6.3, p75: 5.8, p90: 5.3 },
+            accuracy: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            balance: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            coordination: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            anatomy: { p10: 4, p25: 5, p50: 6, p75: 8, p90: 9 },
         },
         Female: {
             height: { p10: 156, p25: 162, p50: 168, p75: 174, p90: 182 },
@@ -69,7 +81,11 @@ export const SPORT_ANCHORS_14_PART2: { [key: string]: { Male: any; Female: any }
             tTest: { p10: 14.8, p25: 13.8, p50: 12.8, p75: 12.0, p90: 11.2 },
             reactionTime: { p10: 0.65, p25: 0.55, p50: 0.46, p75: 0.38, p90: 0.31 },
             responseTime: { p10: 1.15, p25: 1.00, p50: 0.85, p75: 0.70, p90: 0.58 },
-            sprint40m: { p10: 8.0, p25: 7.4, p50: 6.9, p75: 6.4, p90: 5.9 }
+            sprint40m: { p10: 8.0, p25: 7.4, p50: 6.9, p75: 6.4, p90: 5.9 },
+            accuracy: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            balance: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            coordination: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            anatomy: { p10: 4, p25: 5, p50: 6, p75: 8, p90: 9 },
         }
     }, // checked
 
@@ -89,7 +105,11 @@ export const SPORT_ANCHORS_14_PART2: { [key: string]: { Male: any; Female: any }
             tTest: { p10: 12.2, p25: 11.2, p50: 10.4, p75: 9.6, p90: 8.9 },
             reactionTime: { p10: 0.42, p25: 0.32, p50: 0.26, p75: 0.19, p90: 0.15 },
             responseTime: { p10: 0.80, p25: 0.65, p50: 0.52, p75: 0.42, p90: 0.32 },
-            sprint40m: { p10: 6.6, p25: 6.1, p50: 5.6, p75: 5.1, p90: 4.7 }
+            sprint40m: { p10: 6.6, p25: 6.1, p50: 5.6, p75: 5.1, p90: 4.7 },
+            accuracy: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            balance: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            coordination: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            anatomy: { p10: 4, p25: 5, p50: 6, p75: 8, p90: 9 },
         },
         Female: {
             height: { p10: 156, p25: 161, p50: 168, p75: 174, p90: 182 },
@@ -106,7 +126,11 @@ export const SPORT_ANCHORS_14_PART2: { [key: string]: { Male: any; Female: any }
             tTest: { p10: 13.5, p25: 12.5, p50: 11.6, p75: 10.8, p90: 10.1 },
             reactionTime: { p10: 0.48, p25: 0.38, p50: 0.30, p75: 0.24, p90: 0.18 },
             responseTime: { p10: 0.90, p25: 0.75, p50: 0.62, p75: 0.50, p90: 0.40 },
-            sprint40m: { p10: 7.4, p25: 6.9, p50: 6.3, p75: 5.8, p90: 5.4 }
+            sprint40m: { p10: 7.4, p25: 6.9, p50: 6.3, p75: 5.8, p90: 5.4 },
+            accuracy: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            balance: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            coordination: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            anatomy: { p10: 4, p25: 5, p50: 6, p75: 8, p90: 9 },
         }
     }, // checked
 
@@ -126,7 +150,11 @@ export const SPORT_ANCHORS_14_PART2: { [key: string]: { Male: any; Female: any }
             tTest: { p10: 13.5, p25: 12.5, p50: 11.6, p75: 10.8, p90: 10.0 },
             reactionTime: { p10: 0.55, p25: 0.46, p50: 0.38, p75: 0.30, p90: 0.23 },
             responseTime: { p10: 1.00, p25: 0.85, p50: 0.72, p75: 0.58, p90: 0.46 },
-            sprint40m: { p10: 7.2, p25: 6.6, p50: 6.1, p75: 5.6, p90: 5.1 }
+            sprint40m: { p10: 7.2, p25: 6.6, p50: 6.1, p75: 5.6, p90: 5.1 },
+            accuracy: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            balance: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            coordination: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            anatomy: { p10: 4, p25: 5, p50: 6, p75: 8, p90: 9 },
         },
         Female: {
             height: { p10: 154, p25: 160, p50: 166, p75: 172, p90: 180 },
@@ -143,7 +171,11 @@ export const SPORT_ANCHORS_14_PART2: { [key: string]: { Male: any; Female: any }
             tTest: { p10: 14.5, p25: 13.5, p50: 12.6, p75: 11.8, p90: 11.0 },
             reactionTime: { p10: 0.60, p25: 0.50, p50: 0.42, p75: 0.35, p90: 0.28 },
             responseTime: { p10: 1.10, p25: 0.95, p50: 0.80, p75: 0.68, p90: 0.55 },
-            sprint40m: { p10: 7.8, p25: 7.2, p50: 6.7, p75: 6.2, p90: 5.7 }
+            sprint40m: { p10: 7.8, p25: 7.2, p50: 6.7, p75: 6.2, p90: 5.7 },
+            accuracy: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            balance: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            coordination: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            anatomy: { p10: 4, p25: 5, p50: 6, p75: 8, p90: 9 },
         }
     }, // checked
     'Track & Field - Long Distance (5K/10K)': {
@@ -162,7 +194,11 @@ export const SPORT_ANCHORS_14_PART2: { [key: string]: { Male: any; Female: any }
             tTest: { p10: 14.5, p25: 13.5, p50: 12.6, p75: 11.8, p90: 11.0 },
             reactionTime: { p10: 0.60, p25: 0.50, p50: 0.42, p75: 0.35, p90: 0.28 },
             responseTime: { p10: 1.10, p25: 0.98, p50: 0.82, p75: 0.68, p90: 0.55 },
-            sprint40m: { p10: 7.6, p25: 7.0, p50: 6.5, p75: 6.0, p90: 5.5 }
+            sprint40m: { p10: 7.6, p25: 7.0, p50: 6.5, p75: 6.0, p90: 5.5 },
+            accuracy: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            balance: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            coordination: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            anatomy: { p10: 4, p25: 5, p50: 6, p75: 8, p90: 9 },
         },
         Female: {
             height: { p10: 152, p25: 158, p50: 164, p75: 171, p90: 178 },
@@ -179,7 +215,11 @@ export const SPORT_ANCHORS_14_PART2: { [key: string]: { Male: any; Female: any }
             tTest: { p10: 15.5, p25: 14.5, p50: 13.5, p75: 12.7, p90: 11.9 },
             reactionTime: { p10: 0.65, p25: 0.55, p50: 0.45, p75: 0.38, p90: 0.31 },
             responseTime: { p10: 1.20, p25: 1.05, p50: 0.90, p75: 0.78, p90: 0.65 },
-            sprint40m: { p10: 8.2, p25: 7.6, p50: 7.1, p75: 6.6, p90: 6.1 }
+            sprint40m: { p10: 8.2, p25: 7.6, p50: 7.1, p75: 6.6, p90: 6.1 },
+            accuracy: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            balance: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            coordination: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            anatomy: { p10: 4, p25: 5, p50: 6, p75: 8, p90: 9 },
         }
     }, // checked
 
@@ -199,7 +239,11 @@ export const SPORT_ANCHORS_14_PART2: { [key: string]: { Male: any; Female: any }
             tTest: { p10: 12.5, p25: 11.5, p50: 10.6, p75: 9.8, p90: 9.1 },
             reactionTime: { p10: 0.50, p25: 0.40, p50: 0.32, p75: 0.25, p90: 0.18 },
             responseTime: { p10: 0.95, p25: 0.80, p50: 0.65, p75: 0.53, p90: 0.42 },
-            sprint40m: { p10: 6.9, p25: 6.3, p50: 5.8, p75: 5.3, p90: 4.8 }
+            sprint40m: { p10: 6.9, p25: 6.3, p50: 5.8, p75: 5.3, p90: 4.8 },
+            accuracy: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            balance: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            coordination: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            anatomy: { p10: 4, p25: 5, p50: 6, p75: 8, p90: 9 },
         },
         Female: {
             height: { p10: 160, p25: 166, p50: 173, p75: 180, p90: 188 },
@@ -216,7 +260,11 @@ export const SPORT_ANCHORS_14_PART2: { [key: string]: { Male: any; Female: any }
             tTest: { p10: 13.8, p25: 12.8, p50: 11.9, p75: 11.1, p90: 10.3 },
             reactionTime: { p10: 0.55, p25: 0.45, p50: 0.36, p75: 0.28, p90: 0.21 },
             responseTime: { p10: 1.05, p25: 0.88, p50: 0.72, p75: 0.60, p90: 0.48 },
-            sprint40m: { p10: 7.6, p25: 7.0, p50: 6.5, p75: 6.0, p90: 5.5 }
+            sprint40m: { p10: 7.6, p25: 7.0, p50: 6.5, p75: 6.0, p90: 5.5 },
+            accuracy: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            balance: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            coordination: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            anatomy: { p10: 4, p25: 5, p50: 6, p75: 8, p90: 9 },
         }
     }, // checked
 
@@ -236,7 +284,11 @@ export const SPORT_ANCHORS_14_PART2: { [key: string]: { Male: any; Female: any }
             tTest: { p10: 12.2, p25: 11.2, p50: 10.4, p75: 9.7, p90: 9.0 },
             reactionTime: { p10: 0.45, p25: 0.35, p50: 0.28, p75: 0.21, p90: 0.16 },
             responseTime: { p10: 0.82, p25: 0.68, p50: 0.55, p75: 0.45, p90: 0.35 },
-            sprint40m: { p10: 6.8, p25: 6.2, p50: 5.7, p75: 5.2, p90: 4.8 }
+            sprint40m: { p10: 6.8, p25: 6.2, p50: 5.7, p75: 5.2, p90: 4.8 },
+            accuracy: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            balance: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            coordination: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            anatomy: { p10: 4, p25: 5, p50: 6, p75: 8, p90: 9 },
         },
         Female: {
             height: { p10: 156, p25: 162, p50: 168, p75: 174, p90: 182 },
@@ -253,7 +305,11 @@ export const SPORT_ANCHORS_14_PART2: { [key: string]: { Male: any; Female: any }
             tTest: { p10: 13.5, p25: 12.5, p50: 11.6, p75: 10.8, p90: 10.1 },
             reactionTime: { p10: 0.50, p25: 0.40, p50: 0.32, p75: 0.25, p90: 0.18 },
             responseTime: { p10: 0.92, p25: 0.78, p50: 0.65, p75: 0.53, p90: 0.42 },
-            sprint40m: { p10: 7.5, p25: 6.9, p50: 6.4, p75: 5.9, p90: 5.4 }
+            sprint40m: { p10: 7.5, p25: 6.9, p50: 6.4, p75: 5.9, p90: 5.4 },
+            accuracy: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            balance: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            coordination: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            anatomy: { p10: 4, p25: 5, p50: 6, p75: 8, p90: 9 },
         }
     }, // checked
 
@@ -273,7 +329,11 @@ export const SPORT_ANCHORS_14_PART2: { [key: string]: { Male: any; Female: any }
             tTest: { p10: 12.2, p25: 11.2, p50: 10.4, p75: 9.7, p90: 9.0 },
             reactionTime: { p10: 0.45, p25: 0.35, p50: 0.28, p75: 0.21, p90: 0.16 },
             responseTime: { p10: 0.85, p25: 0.70, p50: 0.58, p75: 0.48, p90: 0.38 },
-            sprint40m: { p10: 6.8, p25: 6.2, p50: 5.7, p75: 5.2, p90: 4.8 }
+            sprint40m: { p10: 6.8, p25: 6.2, p50: 5.7, p75: 5.2, p90: 4.8 },
+            accuracy: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            balance: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            coordination: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            anatomy: { p10: 4, p25: 5, p50: 6, p75: 8, p90: 9 },
         },
         Female: {
             height: { p10: 160, p25: 166, p50: 172, p75: 179, p90: 186 },
@@ -290,7 +350,11 @@ export const SPORT_ANCHORS_14_PART2: { [key: string]: { Male: any; Female: any }
             tTest: { p10: 13.5, p25: 12.5, p50: 11.7, p75: 10.9, p90: 10.2 },
             reactionTime: { p10: 0.50, p25: 0.40, p50: 0.32, p75: 0.25, p90: 0.18 },
             responseTime: { p10: 0.95, p25: 0.80, p50: 0.68, p75: 0.56, p90: 0.44 },
-            sprint40m: { p10: 7.5, p25: 6.9, p50: 6.4, p75: 5.9, p90: 5.4 }
+            sprint40m: { p10: 7.5, p25: 6.9, p50: 6.4, p75: 5.9, p90: 5.4 },
+            accuracy: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            balance: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            coordination: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            anatomy: { p10: 4, p25: 5, p50: 6, p75: 8, p90: 9 },
         }
     }, // checked
 
@@ -310,7 +374,11 @@ export const SPORT_ANCHORS_14_PART2: { [key: string]: { Male: any; Female: any }
             tTest: { p10: 13.5, p25: 12.5, p50: 11.8, p75: 11.0, p90: 10.2 },
             reactionTime: { p10: 0.60, p25: 0.50, p50: 0.42, p75: 0.35, p90: 0.28 },
             responseTime: { p10: 1.05, p25: 0.90, p50: 0.78, p75: 0.65, p90: 0.52 },
-            sprint40m: { p10: 7.8, p25: 7.2, p50: 6.6, p75: 6.0, p90: 5.5 }
+            sprint40m: { p10: 7.8, p25: 7.2, p50: 6.6, p75: 6.0, p90: 5.5 },
+            accuracy: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            balance: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            coordination: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            anatomy: { p10: 4, p25: 5, p50: 6, p75: 8, p90: 9 },
         },
         Female: {
             height: { p10: 162, p25: 168, p50: 175, p75: 182, p90: 190 },
@@ -327,7 +395,11 @@ export const SPORT_ANCHORS_14_PART2: { [key: string]: { Male: any; Female: any }
             tTest: { p10: 14.5, p25: 13.5, p50: 12.6, p75: 11.8, p90: 11.0 },
             reactionTime: { p10: 0.65, p25: 0.55, p50: 0.46, p75: 0.38, p90: 0.31 },
             responseTime: { p10: 1.15, p25: 1.00, p50: 0.85, p75: 0.72, p90: 0.60 },
-            sprint40m: { p10: 8.2, p25: 7.6, p50: 7.0, p75: 6.4, p90: 5.9 }
+            sprint40m: { p10: 8.2, p25: 7.6, p50: 7.0, p75: 6.4, p90: 5.9 },
+            accuracy: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            balance: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            coordination: { p10: 4, p25: 5.5, p50: 7, p75: 8.5, p90: 9.5 },
+            anatomy: { p10: 4, p25: 5, p50: 6, p75: 8, p90: 9 },
         }
     }, // checked
 

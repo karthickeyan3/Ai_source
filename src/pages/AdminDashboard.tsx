@@ -248,6 +248,7 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                             <thead>
                                 <tr>
                                     <th>SPORT / EVENT</th>
+                                    <th style={{ textAlign: 'center' }}>ANATOMY</th>
                                     <th style={{ textAlign: 'center' }}>SPEED</th>
                                     <th style={{ textAlign: 'center' }}>AGILITY</th>
                                     <th style={{ textAlign: 'center' }}>POWER</th>
@@ -255,6 +256,9 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                                     <th style={{ textAlign: 'center' }}>STRENGTH</th>
                                     <th style={{ textAlign: 'center' }}>FLEXIBILITY</th>
                                     <th style={{ textAlign: 'center' }}>JUMPING</th>
+                                    <th style={{ textAlign: 'center' }}>ACCURACY</th>
+                                    <th style={{ textAlign: 'center' }}>BALANCE</th>
+                                    <th style={{ textAlign: 'center' }}>COORDINATION</th>
                                     <th style={{ textAlign: 'center' }}>TOTAL</th>
                                     <th style={{ textAlign: 'center' }}>ACTIONS</th>
                                 </tr>
@@ -267,6 +271,7 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                                     return (
                                         <tr key={config.name} className={styles.weightRow}>
                                             <td style={{ fontWeight: 800, color: '#fff' }}>{config.name}</td>
+                                            <td style={{ textAlign: 'center' }}><input type="number" className={styles.weightInput} value={config.weights.anatomy} onChange={e => updateWeight(config.name, 'anatomy', e.target.value)} /></td>
                                             <td style={{ textAlign: 'center' }}><input type="number" className={styles.weightInput} value={config.weights.speed} onChange={e => updateWeight(config.name, 'speed', e.target.value)} /></td>
                                             <td style={{ textAlign: 'center' }}><input type="number" className={styles.weightInput} value={config.weights.agility} onChange={e => updateWeight(config.name, 'agility', e.target.value)} /></td>
                                             <td style={{ textAlign: 'center' }}><input type="number" className={styles.weightInput} value={config.weights.power} onChange={e => updateWeight(config.name, 'power', e.target.value)} /></td>
@@ -274,6 +279,9 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                                             <td style={{ textAlign: 'center' }}><input type="number" className={styles.weightInput} value={config.weights.strength} onChange={e => updateWeight(config.name, 'strength', e.target.value)} /></td>
                                             <td style={{ textAlign: 'center' }}><input type="number" className={styles.weightInput} value={config.weights.flexibility} onChange={e => updateWeight(config.name, 'flexibility', e.target.value)} /></td>
                                             <td style={{ textAlign: 'center' }}><input type="number" className={styles.weightInput} value={config.weights.jumping} onChange={e => updateWeight(config.name, 'jumping', e.target.value)} /></td>
+                                            <td style={{ textAlign: 'center' }}><input type="number" className={styles.weightInput} value={config.weights.accuracy} onChange={e => updateWeight(config.name, 'accuracy', e.target.value)} /></td>
+                                            <td style={{ textAlign: 'center' }}><input type="number" className={styles.weightInput} value={config.weights.balance} onChange={e => updateWeight(config.name, 'balance', e.target.value)} /></td>
+                                            <td style={{ textAlign: 'center' }}><input type="number" className={styles.weightInput} value={config.weights.coordination} onChange={e => updateWeight(config.name, 'coordination', e.target.value)} /></td>
                                             <td style={{ textAlign: 'center' }}>
                                                 <div className={`${styles.statusIndicator} ${isError ? styles.statusError : styles.statusOk}`}>
                                                     {isError ? <AlertCircle size={10} /> : <ShieldCheck size={10} />}

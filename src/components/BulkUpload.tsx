@@ -59,10 +59,10 @@ export const BulkUpload = ({ onBulkResults }: BulkUploadProps) => {
                         verticalJump: parseVal(normalizedRow['vertical jump (cm)'] || normalizedRow['vertical jump'], 35),
                         sitAndReach: parseVal(normalizedRow['sit & reach (cm)'] || normalizedRow['sit & reach'] || normalizedRow['flexibility'], 25),
                         plankTest: parseVal(normalizedRow['plank (s)'] || normalizedRow['plank'], 90),
-                        tTest: parseVal(normalizedRow['t-test (s)'] || normalizedRow['t-test'], 12, true),
-                        reactionTime: parseVal(normalizedRow['reaction time (s)'] || normalizedRow['reaction time'], 0.4, true),
-                        responseTime: parseVal(normalizedRow['response time (s)'] || normalizedRow['response time'], 0.45, true),
-                        sprint40m: parseVal(normalizedRow['40 m sprint (s)'] || normalizedRow['sprint'], 7.0, true)
+                        tTest: parseVal(normalizedRow['t-test (s)'] || normalizedRow['t-test'] || normalizedRow['agility'], 11.5),
+                        reactionTime: parseVal(normalizedRow['reaction time (s)'] || normalizedRow['reaction time'], 0.3),
+                        responseTime: parseVal(normalizedRow['response time (s)'] || normalizedRow['response time'], 0.35),
+                        sprint40m: parseVal(normalizedRow['40 m sprint (s)'] || normalizedRow['40m sprint'] || normalizedRow['sprint'], 6.2)
                     };
 
                     // Normalized gender detection (M/F, Male/Female, etc.)

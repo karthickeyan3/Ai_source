@@ -37,14 +37,14 @@ const EMPTY: Record<string, string | number> = {
     height: '', weight: '', shoulderGirth: '', hipCircumference: '',
     waistCircumference: '', skinfold: '', hipToToe: '',
     verticalJump: '', sitAndReach: '', plankTest: '',
-    tTest: '', reactionTime: '', responseTime: '', sprint40m: '',
+    tTest: '', reactionTime: '', responseTime: '', sprint40m: ''
 };
 
 const UNITS: Record<string, string> = {
     height: 'cm', weight: 'kg', shoulderGirth: 'cm', hipCircumference: 'cm',
     waistCircumference: 'cm', skinfold: 'mm', hipToToe: 'cm',
     verticalJump: 'cm', sitAndReach: 'cm', plankTest: 's',
-    tTest: 's', reactionTime: 's', responseTime: 's', sprint40m: 's',
+    tTest: 's', reactionTime: 's', responseTime: 's', sprint40m: 's'
 };
 
 const getUnit = (key: string) => UNITS[key] ?? '';

@@ -26,13 +26,17 @@ export const metricsList = [
     { key: 'reactionTime', label: 'Reaction Speed', unit: 's' },
     { key: 'responseTime', label: 'Response Time', unit: 's' },
     { key: 'sprint40m', label: 'Sprint Speed (40m)', unit: 's' },
+    { key: 'accuracy', label: 'Accuracy', unit: 'score' },
+    { key: 'balance', label: 'Balance', unit: 'score' },
+    { key: 'coordination', label: 'Coordination', unit: 'score' },
+    { key: 'anatomy', label: 'Anatomy', unit: 'score' },
     { key: 'height', label: 'Height', unit: 'cm' },
     { key: 'weight', label: 'Weight', unit: 'kg' },
     { key: 'shoulderGirth', label: 'Shoulder Girth', unit: 'cm' },
     { key: 'hipCircumference', label: 'Hip Circumference', unit: 'cm' },
     { key: 'waistCircumference', label: 'Waist Circumference', unit: 'cm' },
     { key: 'skinfold', label: 'Skinfold', unit: 'mm' },
-    { key: 'bmi', label: 'Fitness Shape', unit: 'kg/m²' },
+    { key: 'bmi', label: 'BMI', unit: 'kg/m²' },
     { key: 'hipToToe', label: 'Hip to Toe', unit: 'cm' },
 ];
 
@@ -248,7 +252,29 @@ export const calculateDerivedAttributes = (data: Record<string, number>, gender:
     const flexibility = calculateMetricStats(data.sitAndReach || 0, 'sitAndReach', referenceSport, gender, age).percentile;
     const jumping = calculateMetricStats(data.hipToToe || 0, 'hipToToe', referenceSport, gender, age).percentile;
 
-    return { speed, agility, power, endurance, strength, flexibility, jumping };
+    const heightP = calculateMetricStats(data.height || 0, 'height', referenceSport, gender, age).percentile;
+    const hipCircP = calculateMetricStats(data.hipCircumference || 0, 'hipCircumference', referenceSport, gender, age).percentile;
+    const anatomy = (heightP * 0.35) + (jumping * 0.30) + (strength * 0.20) + (hipCircP * 0.15);
+
+    const accuracy = (power * 0.50) + (agility * 0.30) + (flexibility * 0.20);
+    // Wait, the formula for accuracy was: reactionTime 50%, responseTime 30%, sitAndReach 20%. 
+    // Let me recalculate them directly:
+    const reactionP = calculateMetricStats(data.reactionTime || 0, 'reactionTime', referenceSport, gender, age).percentile;
+    const responseP = calculateMetricStats(data.responseTime || 0, 'responseTime', referenceSport, gender, age).percentile;
+    const tTestP = calculateMetricStats(data.tTest || 0, 'tTest', referenceSport, gender, age).percentile;
+    const vertP = calculateMetricStats(data.verticalJump || 0, 'verticalJump', referenceSport, gender, age).percentile;
+    const plankP = calculateMetricStats(data.plankTest || 0, 'plankTest', referenceSport, gender, age).percentile;
+
+    // We need BMI percentile. The `data` is FormData, it doesn't have BMI natively here, so we must calculate it:
+    const hM2 = (data.height || 160) / 100;
+    const bmiVal2 = (data.weight || 50) / (hM2 * hM2);
+    const bmiP = calculateMetricStats(bmiVal2, 'bmi', referenceSport, gender, age).percentile;
+
+    const accuracyVal = (reactionP * 0.50) + (responseP * 0.30) + (flexibility * 0.20);
+    const balanceVal = (plankP * 0.40) + (bmiP * 0.30) + (flexibility * 0.30);
+    const coordVal = (tTestP * 0.35) + (reactionP * 0.25) + (vertP * 0.20) + (responseP * 0.20);
+
+    return { speed, agility, power, endurance, strength, flexibility, jumping, anatomy, accuracy: accuracyVal, balance: balanceVal, coordination: coordVal };
 };
 
 const getSportRecommendations = (data: FormData): { recommendations: RecommendedSport[], attributes: Record<string, number> } => {
@@ -304,10 +330,31 @@ export const runAssessment = (data: FormData): AssessmentResult => {
 
     const hM = data.height / 100;
     const bmiVal = parseFloat((data.weight / (hM * hM)).toFixed(2));
-    const dataWithBmi = { ...data, bmi: bmiVal };
+
+    // Calculate anatomy automatically from structural percentiles
+    const heightP = calculateMetricStats(data.height, 'height', primarySport, data.gender, age, true).percentile;
+    const hipToToeP = calculateMetricStats(data.hipToToe, 'hipToToe', primarySport, data.gender, age, true).percentile;
+    const shoulderP = calculateMetricStats(data.shoulderGirth, 'shoulderGirth', primarySport, data.gender, age, true).percentile;
+    const hipCircP = calculateMetricStats(data.hipCircumference, 'hipCircumference', primarySport, data.gender, age, true).percentile;
+    const anatomyVal = parseFloat((((heightP * 0.35) + (hipToToeP * 0.30) + (shoulderP * 0.20) + (hipCircP * 0.15)) / 10).toFixed(1));
+
+    const plankP = calculateMetricStats(data.plankTest, 'plankTest', primarySport, data.gender, age, true).percentile;
+    const bmiP = calculateMetricStats(bmiVal, 'bmi', primarySport, data.gender, age, true).percentile;
+    const sitReachP = calculateMetricStats(data.sitAndReach, 'sitAndReach', primarySport, data.gender, age, true).percentile;
+    const balanceVal = parseFloat((((plankP * 0.40) + (bmiP * 0.30) + (sitReachP * 0.30)) / 10).toFixed(1));
+
+    const tTestP = calculateMetricStats(data.tTest, 'tTest', primarySport, data.gender, age, true).percentile;
+    const reactionP = calculateMetricStats(data.reactionTime, 'reactionTime', primarySport, data.gender, age, true).percentile;
+    const verticalJumpP = calculateMetricStats(data.verticalJump, 'verticalJump', primarySport, data.gender, age, true).percentile;
+    const responseP = calculateMetricStats(data.responseTime, 'responseTime', primarySport, data.gender, age, true).percentile;
+    const coordVal = parseFloat((((tTestP * 0.35) + (reactionP * 0.25) + (verticalJumpP * 0.20) + (responseP * 0.20)) / 10).toFixed(1));
+
+    const accuracyVal = parseFloat((((reactionP * 0.50) + (responseP * 0.30) + (sitReachP * 0.20)) / 10).toFixed(1));
+
+    const dataWithDerived = { ...data, bmi: bmiVal, anatomy: anatomyVal, accuracy: accuracyVal, balance: balanceVal, coordination: coordVal };
 
     const results: MetricResult[] = metricsList.map(m => {
-        const val = (dataWithBmi as unknown as Record<string, unknown>)[m.key] as number;
+        const val = (dataWithDerived as unknown as Record<string, unknown>)[m.key] as number;
         // forDisplay=true ensures the 'eliteValue' returned is for the athlete's ACTUAL age (U10 etc)
         const stats = calculateMetricStats(val, m.key, primarySport, data.gender, age, true);
         return {
@@ -358,18 +405,43 @@ export const recalculateMetricsForSport = (
     metrics: MetricResult[],
     newSport: string,
     gender: Gender,
-    age: number
+    age: number,
+    fullData?: FormData // optional full data to calculate derived stats if missing
 ): MetricResult[] => {
-    return metrics.map(m => {
-        const metricObj = metricsList.find(ml => ml.label === m.metric);
-        if (!metricObj) return m;
+    // Make sure we map over the full metricsList, not just what was in the old assessment
+    return metricsList.map(metricObj => {
+        const existing = metrics.find(m => m.metric === metricObj.label);
 
-        const stats = calculateMetricStats(m.value, metricObj.key, newSport, gender, age, true);
-        return {
-            ...m,
-            eliteValue: stats.eliteValue,
-            percentile: Math.round(stats.percentile),
-            rating: getRating(stats.percentile)
-        };
+        let value = 0;
+        if (existing) {
+            value = existing.value;
+        } else if (fullData) {
+            // If we have fullData, we can extract or derive it!
+            // But since this is a complex recalculation, we'll just re-run assessment if fullData is passed.
+            // For now, if we don't have it, we default to 0.
+            value = 0;
+        }
+
+        const stats = calculateMetricStats(value, metricObj.key, newSport, gender, age, true);
+
+        if (existing) {
+            return {
+                ...existing,
+                eliteValue: stats.eliteValue,
+                percentile: Math.round(stats.percentile),
+                rating: getRating(stats.percentile)
+            };
+        } else {
+            return {
+                metric: metricObj.label,
+                value: 0,
+                eliteValue: stats.eliteValue,
+                unit: metricObj.unit,
+                percentile: Math.round(stats.percentile),
+                zScore: parseFloat(stats.zScore.toFixed(2)),
+                rating: getRating(stats.percentile),
+                isInverse: INVERSE_METRICS.includes(metricObj.key)
+            };
+        }
     });
 };

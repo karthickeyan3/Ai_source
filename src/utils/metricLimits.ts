@@ -166,6 +166,51 @@ export const METRIC_LIMITS: Record<string, MetricLimit> = {
         step: 0.01,
         hint: '40m sprint: 3.5 - 15.0 s (lower = better; typical youth: 5.5 - 8.5 s)',
     },
+
+    // ── New Assessment Metrics ─────────────────────────────────────────────
+    /**
+     * Anatomy: Coach-assessed body structure/proportionality score.
+     * Scale: 1 (poor) to 10 (ideal for sport).
+     */
+    anatomy: {
+        min: 1,
+        max: 10,
+        step: 0.1,
+        hint: 'Body structure assessment score: 1 - 10 (higher = better)',
+    },
+
+    /**
+     * Accuracy: Target throw/kick accuracy test.
+     * Score: 0 (no hits) to 10 (perfect).
+     */
+    accuracy: {
+        min: 0,
+        max: 10,
+        step: 0.1,
+        hint: 'Accuracy test score: 0 - 10 (higher = better)',
+    },
+
+    /**
+     * Balance: Single-leg balance test duration.
+     * Time: 1 s (very poor) to 120 s (exceptional).
+     */
+    balance: {
+        min: 1,
+        max: 120,
+        step: 1,
+        hint: 'Single-leg balance hold: 1 - 120 s (higher = better)',
+    },
+
+    /**
+     * Coordination: Ball-drop or coordination shuttle test score.
+     * Score: 0 (poor) to 10 (exceptional).
+     */
+    coordination: {
+        min: 0,
+        max: 10,
+        step: 0.1,
+        hint: 'Coordination test score: 0 - 10 (higher = better)',
+    },
 };
 
 /**

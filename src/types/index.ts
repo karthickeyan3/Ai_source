@@ -17,7 +17,19 @@ export type Sport =
     | 'Cycling'
     | 'Rowing'
     | 'Swimming'
-    | 'Track & Field';
+    | 'Track & Field'
+    | 'Hockey'
+    | 'Kabaddi'
+    | 'Kho-Kho'
+    | 'Wrestling'
+    | 'Boxing'
+    | 'Judo'
+    | 'Taekwondo'
+    | 'Fencing'
+    | 'Wushu'
+    | 'Archery'
+    | 'Weightlifting'
+    | 'Kayaking';
 
 export type Gender = 'Male' | 'Female';
 

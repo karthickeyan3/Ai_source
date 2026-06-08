@@ -22,10 +22,22 @@ const SPORTS = [
     { name: 'Track: Long Dist' },
     { name: 'Track: Jumps' },
     { name: 'Track: Throws' },
+    { name: 'Hockey' },
+    { name: 'Kabaddi' },
+    { name: 'Kho-Kho' },
+    { name: 'Wrestling' },
+    { name: 'Boxing' },
+    { name: 'Judo' },
+    { name: 'Taekwondo' },
+    { name: 'Fencing' },
+    { name: 'Wushu' },
+    { name: 'Archery' },
+    { name: 'Weightlifting' },
+    { name: 'Kayaking' }
 ];
 
 const STATS = [
-    { value: '15', label: 'Sports & Events' },
+    { value: '27', label: 'Sports & Events' },
     { value: '14', label: 'Metrics Tracked' },
     { value: '7', label: 'Age Groups (10–16)' },
 ];
@@ -211,7 +223,7 @@ export const LandingPage = ({ onStart }: LandingPageProps) => {
                         maxWidth: 480,
                         marginTop: '1.5rem',
                     }}>
-                        Compare your child's physical metrics against <span style={{ color: '#AAFF00', fontWeight: 700 }}> elite youth benchmarks</span> across 15 sports and events. Get <span style={{ color: '#AAFF00', fontWeight: 700 }}> data-driven insights</span> and
+                        Compare your child's physical metrics against <span style={{ color: '#AAFF00', fontWeight: 700 }}> elite youth benchmarks</span> across 27 sports and events. Get <span style={{ color: '#AAFF00', fontWeight: 700 }}> data-driven insights</span> and
                         <span style={{ color: '#AAFF00', fontWeight: 700 }}> talent identification</span>.
                     </p>
 
@@ -321,7 +333,7 @@ export const LandingPage = ({ onStart }: LandingPageProps) => {
                             lineHeight: 1,
                             textTransform: 'uppercase'
                         }}>
-                            15 Events.<br />
+                            27 Events.<br />
                             One Hub.<br />
                             <span style={{ color: '#AAFF00' }}>Infinite</span> Data.
                         </h2>
@@ -440,7 +452,7 @@ export const LandingPage = ({ onStart }: LandingPageProps) => {
                     }}>
                         {[
                             { step: '01', title: 'Enter Metrics', desc: 'Input body measurements and performance test results for your athlete aged 10–16.', icon: <ClipboardCheck size={32} color="#AAFF00" strokeWidth={1.5} /> },
-                            { step: '02', title: 'Get Analysis', desc: 'Our engine automatically calculates the best fit across 15 sports and events.', icon: <Target size={32} color="#AAFF00" strokeWidth={1.5} /> },
+                            { step: '02', title: 'Get Analysis', desc: 'Our engine automatically calculates the best fit across 27 sports and events.', icon: <Target size={32} color="#AAFF00" strokeWidth={1.5} /> },
                             { step: '03', title: 'SRS Insights', desc: 'View percentile rankings, radar charts, talent clusters, and sport recommendations.', icon: <BarChart3 size={32} color="#AAFF00" strokeWidth={1.5} /> },
                         ].map(item => (
                             <div key={item.step}

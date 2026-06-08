@@ -17,7 +17,7 @@ export const getNormativeData = (): { [key: string]: SportNorms } => {
 
         // 1. CLEANUP & NORMALIZE: Ensure dash consistency and remove legacy grouped sports
         let modified = false;
-        
+
         // Map of legacy/incorrect names to new ones if necessary
         const legacyJumps = 'Track & Field - Jumps (High/Long/Triple)';
 
@@ -53,7 +53,7 @@ export const getNormativeData = (): { [key: string]: SportNorms } => {
         const GENDERS: Gender[] = ['Male', 'Female'];
 
         // Final standard list of metrics we expect
-        const METRICS = ['height', 'weight', 'bmi', 'shoulderGirth', 'hipCircumference', 'waistCircumference', 'skinfold', 'hipToToe', 'verticalJump', 'sitAndReach', 'plankTest', 'tTest', 'reactionTime', 'responseTime', 'sprint40m'];
+        const METRICS = ['height', 'weight', 'bmi', 'shoulderGirth', 'hipCircumference', 'waistCircumference', 'skinfold', 'hipToToe', 'anatomy', 'verticalJump', 'sitAndReach', 'plankTest', 'tTest', 'reactionTime', 'responseTime', 'sprint40m', 'accuracy', 'balance', 'coordination'];
 
         // Helper to ensure an age object has all metric slots
         const ensureMetrics = (ageObj: Record<string, any>) => {

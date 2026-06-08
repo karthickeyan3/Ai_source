@@ -102,12 +102,21 @@ export const PerformanceRadar = ({ metrics, age, gender, sport = 'Basketball', a
                 { key: 'weight', label: 'Weight' },
                 { key: 'reactionTime', label: 'Reaction Speed' },
                 { key: 'responseTime', label: 'Response Time' },
-                { key: 'bmi', label: 'Fitness Shape' },
+                { key: 'bmi', label: 'BMI' },
                 { key: 'sprint40m', label: 'Sprint Speed (40m)' },
                 { key: 'verticalJump', label: 'Explosive Power' },
                 { key: 'tTest', label: 'Agility (T-Test)' },
                 { key: 'plankTest', label: 'Core Strength' },
-                { key: 'sitAndReach', label: 'Flexibility' }
+                { key: 'sitAndReach', label: 'Flexibility' },
+                { key: 'anatomy', label: 'Anatomy' },
+                { key: 'accuracy', label: 'Accuracy' },
+                { key: 'balance', label: 'Balance' },
+                { key: 'coordination', label: 'Coordination' },
+                { key: 'shoulderGirth', label: 'Shoulder Girth' },
+                { key: 'hipCircumference', label: 'Hip Circumference' },
+                { key: 'waistCircumference', label: 'Waist Circumference' },
+                { key: 'skinfold', label: 'Skinfold' },
+                { key: 'hipToToe', label: 'Hip to Toe' }
             ];
             const item = config.find(c => c.label === m.metric);
             if (item) rawData[item.key] = m.value;
@@ -118,14 +127,18 @@ export const PerformanceRadar = ({ metrics, age, gender, sport = 'Basketball', a
 
     // Select specific metrics for the radar axes
     const selectedMapping = [
+        { label: 'Anatomy', key: 'anatomy' },
         { label: 'Reaction Speed', key: 'reactionTime' },
         { label: 'Response Time', key: 'responseTime' },
-        { label: 'Fitness Shape', key: 'bmi' },
+        { label: 'BMI', key: 'bmi' },
         { label: 'Sprint Speed (40m)', key: 'sprint40m' },
         { label: 'Explosive Power', key: 'verticalJump' },
         { label: 'Agility (T-Test)', key: 'tTest' },
         { label: 'Core Strength', key: 'plankTest' },
-        { label: 'Flexibility', key: 'sitAndReach' }
+        { label: 'Flexibility', key: 'sitAndReach' },
+        { label: 'Accuracy', key: 'accuracy' },
+        { label: 'Balance', key: 'balance' },
+        { label: 'Coordination', key: 'coordination' }
     ];
 
     const radarData = useMemo(() => {
