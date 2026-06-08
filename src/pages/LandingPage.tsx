@@ -315,34 +315,31 @@ export const LandingPage = ({ onStart }: LandingPageProps) => {
                 <div className="lp-section-grid" style={{
                     maxWidth: 1300,
                     margin: '0 auto',
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-                    gap: 'clamp(2rem, 4vw, 4rem)',
-                    alignItems: 'flex-start'
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '3rem',
+                    alignItems: 'center'
                 }}>
-                    {/* Left Column: Context */}
-                    <div style={{ position: 'sticky', top: 120 }}>
+                    {/* Top Section: Context */}
+                    <div style={{ textAlign: 'center', maxWidth: 800 }}>
                         <p style={{ color: '#AAFF00', fontSize: '0.85rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: 4, marginBottom: '1.5rem' }}>
                             Sport Discovery
                         </p>
                         <h2 style={{
                             fontSize: 'clamp(2.5rem, 5vw, 4.2rem)',
                             fontWeight: 900,
-                            margin: '0 0 2rem',
+                            margin: '0 0 1.5rem',
                             letterSpacing: -2,
                             lineHeight: 1,
                             textTransform: 'uppercase'
                         }}>
-                            27 Events.<br />
-                            One Hub.<br />
-                            <span style={{ color: '#AAFF00' }}>Infinite</span> Data.
+                            27 Events. One Hub. <span style={{ color: '#AAFF00' }}>Infinite</span> Data.
                         </h2>
                         <p style={{
                             color: '#9ca3af',
                             fontSize: '1.25rem',
                             lineHeight: 1.6,
-                            maxWidth: 480,
-                            marginBottom: '2.5rem'
+                            margin: '0 auto'
                         }}>
                             We compare every metric against <span style={{ color: '#fff', fontWeight: 700 }}>elite regional benchmarks</span>
                             to find where you fit best. Select a sport to explore the performance profiles.
@@ -352,9 +349,9 @@ export const LandingPage = ({ onStart }: LandingPageProps) => {
                     <div className="sport-grid" style={{
                         display: 'grid',
                         gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-                        gap: '1px',
-                        background: 'rgba(255,255,255,0.08)',
-                        border: '1px solid rgba(255,255,255,0.08)',
+                        background: '#0d0d0d',
+                        borderTop: '1px solid rgba(255,255,255,0.08)',
+                        borderLeft: '1px solid rgba(255,255,255,0.08)',
                         borderRadius: '12px',
                         overflow: 'hidden',
                         width: '100%'
@@ -366,6 +363,7 @@ export const LandingPage = ({ onStart }: LandingPageProps) => {
                                 style={{
                                     background: '#0d0d0d',
                                     border: 'none',
+                                    boxShadow: 'inset -1px -1px 0 0 rgba(255,255,255,0.08)',
                                     padding: '28px 24px',
                                     textAlign: 'left',
                                     cursor: 'pointer',
@@ -428,6 +426,26 @@ export const LandingPage = ({ onStart }: LandingPageProps) => {
                                 </span>
                             </button>
                         ))}
+                        {/* Placeholder card to fill the odd empty space */}
+                        <div style={{
+                            background: '#0d0d0d',
+                            boxShadow: 'inset -1px -1px 0 0 rgba(255,255,255,0.08)',
+                            padding: '28px 24px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            minHeight: '90px',
+                        }}>
+                            <span style={{
+                                color: 'rgba(255,255,255,0.2)',
+                                fontWeight: 800,
+                                fontSize: '0.9rem',
+                                textTransform: 'uppercase',
+                                letterSpacing: '2px'
+                            }}>
+                                + More Coming Soon
+                            </span>
+                        </div>
                     </div>
                 </div>
             </section>
