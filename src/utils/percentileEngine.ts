@@ -256,9 +256,7 @@ export const calculateDerivedAttributes = (data: Record<string, number>, gender:
     const hipCircP = calculateMetricStats(data.hipCircumference || 0, 'hipCircumference', referenceSport, gender, age).percentile;
     const anatomy = (heightP * 0.35) + (jumping * 0.30) + (strength * 0.20) + (hipCircP * 0.15);
 
-    const accuracy = (power * 0.50) + (agility * 0.30) + (flexibility * 0.20);
-    // Wait, the formula for accuracy was: reactionTime 50%, responseTime 30%, sitAndReach 20%. 
-    // Let me recalculate them directly:
+
     const reactionP = calculateMetricStats(data.reactionTime || 0, 'reactionTime', referenceSport, gender, age).percentile;
     const responseP = calculateMetricStats(data.responseTime || 0, 'responseTime', referenceSport, gender, age).percentile;
     const tTestP = calculateMetricStats(data.tTest || 0, 'tTest', referenceSport, gender, age).percentile;
